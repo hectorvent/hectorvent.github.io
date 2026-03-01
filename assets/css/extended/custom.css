@@ -1,0 +1,6 @@
+/* Constrain logo-style cover images */
+.entry-cover img[src*="logo"],
+.entry-cover img[src$=".svg"] {
+    max-height: 220px;
+    width: auto !important;
+}
