@@ -1,0 +1,84 @@
+baseURL: https://hectorvent.dev
+languageCode: en-us
+title: Hector Ventura
+theme: ["PaperMod"]
+
+enableRobotsTXT: true
+relativeURLs: true
+buildDrafts: false
+buildFuture: false
+
+minify:
+  disableXML: true
+  minifyOutput: true
+
+params:
+  env: production
+  title: Hector Ventura
+  description: Software Engineer & Developer
+  author: Hector Ventura
+  defaultTheme: auto
+
+  profileMode:
+    enabled: true
+    title: Hector Ventura
+    subtitle: "Software Engineer"
+    imageUrl: "/images/avatar.svg"
+    imageWidth: 120
+    imageHeight: 120
+    buttons:
+      - name: Blog
+        url: /posts/
+      - name: Projects
+        url: /projects/
+
+  socialIcons:
+    - name: github
+      url: "https://github.com/hectorvent"
+    - name: linkedin
+      url: "https://linkedin.com/in/hectorvent"
+    - name: twitter
+      url: "https://twitter.com/hectorvent"
+    - name: telegram
+      url: "https://t.me/hectorvent"
+
+  assets:
+    favicon: "/images/favicon.ico"
+    favicon16x16: "/images/favicon-16x16.png"
+    favicon32x32: "/images/favicon-32x32.png"
+    apple_touch_icon: "/images/apple-touch-icon.png"
+    safari_pinned_tab: "/images/apple-touch-icon.png"
+
+  fuseOpts:
+    isCaseSensitive: false
+    shouldSort: true
+    location: 0
+    distance: 1000
+    threshold: 0.4
+    minMatchCharLength: 0
+    keys: ["title", "permalink", "summary", "content"]
+
+outputs:
+  home:
+    - HTML
+    - RSS
+    - JSON
+
+menu:
+  main:
+    - identifier: about
+      name: About
+      url: /about/
+      weight: 10
+    - identifier: posts
+      name: Blog
+      url: /posts/
+      weight: 20
+    - identifier: projects
+      name: Projects
+      url: /projects/
+      weight: 30
+    - identifier: search
+      name: Search
+      url: /search/
+      weight: 40
