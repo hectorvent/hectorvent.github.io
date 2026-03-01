@@ -5,7 +5,7 @@ description: "A talk given at ITLA Santiago introducing reactive systems concept
 tags: ["java", "vertx", "reactive", "jvm", "talk"]
 author: "Hector Ventura"
 cover:
-  image: "https://vertx.io/images/vertx_logo.svg"
+  image: "/images/vertx-logo.png"
   alt: "Eclipse Vert.x logo"
 showToc: true
 TocOpen: false

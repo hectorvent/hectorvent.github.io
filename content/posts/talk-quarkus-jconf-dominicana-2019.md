@@ -5,7 +5,7 @@ description: "A talk given at JConf Dominicana 2019 introducing Quarkus — the 
 tags: ["java", "quarkus", "graalvm", "kubernetes", "microservices", "talk"]
 author: "Hector Ventura"
 cover:
-  image: "https://design.jboss.org/quarkus/logo/final/PNG/quarkus_logo_horizontal_rgb_600px_default.png"
+  image: "/images/quarkus-logo.png"
   alt: "Quarkus - Supersonic Subatomic Java"
 showToc: true
 TocOpen: false
