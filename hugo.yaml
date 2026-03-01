@@ -1,10 +1,9 @@
-baseURL: https://hectorvent.dev
+baseURL: https://hectorvent.dev/
 languageCode: en-us
 title: Hector Ventura
-theme: ["PaperMod"]
+theme: PaperMod
 
 enableRobotsTXT: true
-relativeURLs: true
 buildDrafts: false
 buildFuture: false
 
