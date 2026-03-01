@@ -1,10 +1,11 @@
-{{ if .Store.Get "hasMermaid" }}
 <script type="module">
   import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.esm.min.mjs';
   const isDark = document.documentElement.dataset.theme === 'dark';
-  mermaid.initialize({
+  const config = {
     startOnLoad: true,
     theme: isDark ? 'dark' : 'default',
-  });
+  };
+  if (document.querySelectorAll('.mermaid').length > 0) {
+    mermaid.initialize(config);
+  }
 </script>
-{{ end }}
