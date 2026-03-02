@@ -17,7 +17,7 @@ goal: minimal, lightweight, and always free.
 
 ---
 
-## Key Numbers: Native Floci vs LocalStack
+## Native Floci vs LocalStack
 
 | Metric | Native Floci | LocalStack | Advantage |
 |---|---|---|---|
@@ -25,19 +25,8 @@ goal: minimal, lightweight, and always free.
 | **Idle Memory** | **42 MiB** | ~500 MiB | **92% less** |
 | **Lambda Latency** | **2 ms avg** | 26 ms avg | **13× faster** |
 | **Lambda Throughput** | **287 req/s** | 116 req/s | **2.5× faster** |
+| **Docker Image Size** | **~47** | ~1,500 MB | **32x smaller** |
 | **Price** | **Free Forever** | Auth Token Req. | **$0 / No Auth** |
-
----
-
-## Detailed Performance (JVM vs Native)
-
-| Metric | Native | JVM |
-|---|---|---|
-| Startup time | 19 ms | 771 ms |
-| Idle memory | 42 MiB | 96 MiB |
-| AWS SDK test pass rate | 100% (166/166) | 100% (166/166) |
-| Docker image size | ~47 MB | ~400 MB |
-
 ---
 
 ## Supported AWS Services
