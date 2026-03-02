@@ -42,8 +42,9 @@ development and real-time communications is where I'm most at home.
 
 I build tools I actually need. My latest project is **[Floci](https://github.com/hectorvent/floci)**
 — a fast, free, MIT-licensed AWS service emulator built with Quarkus and compiled to a native
-binary with GraalVM. It starts in 19 ms, uses 42 MiB at idle, and covers 11 AWS services with a
-100% pass rate against the AWS SDK test suite.
+binary with GraalVM.
+
+I'm also proud to be one of the [**Quarkus 1,000 Contributors**](https://quarkus.io/1000contributors/), and I've also contributed to the [**Debezium**](https://debezium.io/) and [**Eclipse Vert.x**](https://vertx.io/) projects. These involvements in the open-source community help shape my passion for building high-performance, cloud-native systems.
 
 ---
 
@@ -51,9 +52,11 @@ binary with GraalVM. It starts in 19 ms, uses 42 MiB at idle, and covers 11 AWS 
 
 I am an active member of the [**Postgres MetroPlex Dallas**](https://www.meetup.com/dallas-fort-worth-postgres/) community.
 
-Since **2007** I've been a professor at the
-[**Fundación Código Libre Dominicano**](https://codigolibre.org/), teaching free and open-source
-software in the Dominican Republic. I also tutor Java on Wyzant.
+For many years, I was a core part of the [**Java Dominicano**](https://linktr.ee/javadominicano) group, where I contributed through talks and workshops. Although moving to **Texas** made it harder to stay as involved day-to-day, I make it a priority to return and contribute whenever possible, especially for major events like [**JConf Dominicana**](https://jconfdominicana.org/).
+
+Since **2007** until **2012**, I served as a Linux Administration instructor at the [**Fundación Código Libre Dominicano**](https://www.facebook.com/codigolibre/). Following my outstanding studies in **2006**, I began teaching Linux fundamentals and advanced server administration, covering essential services such as **LDAP**, **DNS (Bind)**, **HTTP (Apache)**, **SAMBA**, **Cron**, and **Kerberos**.
+
+Later, from **2017** to **2020**, I was a tutor at [**ITLA (Instituto Tecnológico de las Américas)**](https://educapermanente.itla.edu.do/) in Santiago, sharing my expertise with the next generation of tech professionals. I also tutor Java on Wyzant.
 
 ---
 

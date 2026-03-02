@@ -7,3 +7,25 @@
     width: auto !important;
     margin: 0 auto !important;
 }
+
+.post-tags a {
+    position: relative;
+    z-index: 2;
+    display: inline-block;
+    color: var(--secondary);
+    background: rgba(128, 128, 128, 0.1);
+    padding: 0px 4px;
+    margin-right: 2px;
+    border-radius: 4px;
+    font-size: 0.65em;
+    font-weight: 500;
+    line-height: 1.4;
+    text-decoration: none;
+    transition: all 0.15s ease-in-out;
+}
+
+.post-tags a:hover {
+    background: var(--tertiary);
+    color: var(--primary) !important;
+    transform: translateY(-1px);
+}
