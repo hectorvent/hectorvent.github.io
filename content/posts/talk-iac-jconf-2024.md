@@ -1,75 +1,75 @@
 ---
-title: "Infrastructure as Code (IaC) para todos"
+title: "Infrastructure as Code (IaC) for Everyone"
 date: 2024-07-01
-description: "Una charla y taller práctico presentado en JConf Dominicana 2024 sobre los fundamentos de Infraestructura como Código (IaC), explorando herramientas como doctl, OpenTofu, Pulumi y Ansible para automatizar el aprovisionamiento y configuración de servidores."
+description: "A practical talk and workshop presented at JConf Dominicana 2024 on the fundamentals of Infrastructure as Code (IaC), exploring tools like doctl, OpenTofu, Pulumi, and Ansible to automate server provisioning and configuration."
 tags: ["iac", "opentofu", "terraform", "pulumi", "ansible", "devops", "talk"]
 author: "Hector Ventura"
 cover:
-  image: "/images/iac-jconf-2024.png"
-  alt: "JConf Dominicana 2024 - IaC para todos"
+  image: "/images/opentofu-logo.svg"
+  alt: "OpenTofu Logo - JConf Dominicana 2024"
 showToc: true
 TocOpen: false
 draft: false
 ---
 
-*Charla y taller presentado en [JConf Dominicana](https://jconfdominicana.org/) — Julio 2024*
+*Talk and workshop presented at [JConf Dominicana](https://jconfdominicana.org/) — July 2024*
 
 ---
 
-## ¿Qué es IaC?
+## What is IaC?
 
-La **Infraestructura como Código (IaC)** es una práctica fundamental en DevOps y administración de sistemas modernos. Consiste en gestionar y aprovisionar la infraestructura mediante archivos de configuración legibles por humanos, en lugar de realizar configuraciones manuales a través de interfaces gráficas.
+**Infrastructure as Code (IaC)** is a fundamental practice in DevOps and modern system administration. It involves managing and provisioning infrastructure through human-readable configuration files, rather than through manual processes or graphical interfaces.
 
-### Beneficios clave:
-- **Versionamiento de código:** Almacena tu infraestructura en Git.
-- **Replicabilidad:** Crea entornos idénticos (Dev, QA, Prod) de forma consistente.
-- **Velocidad:** Despliega servidores y redes en segundos.
-- **Reducción de costos:** Evita errores humanos y recursos olvidados.
-
----
-
-## ¿Por qué "para todos"?
-
-A menudo se piensa que la IaC es solo para grandes arquitecturas de nube. Sin embargo, los principios de automatización son útiles en cualquier nivel: desde la instalación de un servidor personal hasta el despliegue de clusters complejos. Si tienes que instalar, configurar o hacer backup de algo más de una vez, deberías usar IaC.
+### Key Benefits:
+- **Code Versioning:** Store your infrastructure in Git.
+- **Replicability:** Create identical environments (Dev, QA, Prod) consistently.
+- **Speed:** Deploy servers and networks in seconds.
+- **Cost Reduction:** Avoid human errors and forgotten/zombie resources.
 
 ---
 
-## El Taller: De lo Manual a lo Automatizado
+## Why "for everyone"?
 
-En este taller recorrimos la evolución de la infraestructura a través de 7 módulos prácticos, utilizando **DigitalOcean** como nuestro proveedor de nube.
+IaC is often thought to be exclusively for large cloud architectures. However, automation principles are useful at any scale: from setting up a personal server to deploying complex clusters. If you have to install, configure, or back up something more than once, you should be using IaC.
 
-### Requerimientos base:
-- Cuenta en Digital Ocean.
+---
+
+## The Workshop: From Manual to Automated
+
+In this workshop, we went through the evolution of infrastructure across 7 practical modules, using **DigitalOcean** as our cloud provider.
+
+### Base Requirements:
+- DigitalOcean Account.
 - Java 21.
 - Maven.
 - Docker.
 
 ---
 
-### Módulo 1: La forma manual (Control Panel)
+### Module 1: The Manual Way (Control Panel)
 
-Comenzamos explorando cómo crear un Droplet (servidor) de la forma tradicional, eligiendo región, imagen (Debian 12) y tamaño manualmente para entender lo que luego automatizaríamos.
+We started by exploring how to create a Droplet (server) the traditional way, manually choosing the region, image (Debian 12), and size to understand what we would automate later.
 
 ---
 
-### Módulo 2: Automatización por CLI con `doctl`
+### Module 2: CLI Automation with `doctl`
 
-El primer paso hacia la automatización es el uso de la línea de comandos. `doctl` es el cliente oficial de DigitalOcean que permite interactuar con su API.
+The first step towards automation is using the command line. `doctl` is the official DigitalOcean client that allows interaction with their API.
 
 ```bash
-doctl compute droplet create 
-  --image debian-12-x64 
-  --size s-1vcpu-512mb-10gb 
-  --region nyc1 
-  --enable-monitoring 
+doctl compute droplet create \
+  --image debian-12-x64 \
+  --size s-1vcpu-512mb-10gb \
+  --region nyc1 \
+  --enable-monitoring \
   iac-everyone-server-1
 ```
 
 ---
 
-### Módulo 3: Infraestructura Declarativa con OpenTofu
+### Module 3: Declarative Infrastructure with OpenTofu
 
-[OpenTofu](https://opentofu.org/) (el fork open-source de Terraform) nos permite definir recursos de forma declarativa en archivos `.tf`.
+[OpenTofu](https://opentofu.org/) (the open-source fork of Terraform) allows us to define resources declaratively in `.tf` files.
 
 ```hcl
 resource "digitalocean_droplet" "iac-everyone-server-1" {
@@ -85,9 +85,9 @@ resource "digitalocean_droplet" "iac-everyone-server-1" {
 
 ---
 
-### Módulo 4: IaC con Lenguajes de Programación (Pulumi)
+### Module 4: IaC with Programming Languages (Pulumi)
 
-[Pulumi](https://www.pulumi.com/) permite gestionar la infraestructura utilizando lenguajes convencionales como Java, JavaScript o Python, facilitando la integración con lógica de negocio y pruebas unitarias.
+[Pulumi](https://www.pulumi.com/) allows managing infrastructure using conventional languages like Java, JavaScript, or Python, making it easier to integrate with business logic and unit testing.
 
 ```java
 Pulumi.run(ctx -> {
@@ -102,15 +102,15 @@ Pulumi.run(ctx -> {
 
 ---
 
-### Módulo 5: Configuración con Ansible
+### Module 5: Configuration with Ansible
 
-Mientras OpenTofu/Pulumi crean el "hardware" virtual, **Ansible** se encarga de lo que corre dentro (Configuración). Es una herramienta sin agentes que utiliza YAML para definir tareas.
+While OpenTofu/Pulumi create the virtual "hardware", **Ansible** takes care of what runs inside (Configuration). It is an agentless tool that uses YAML to define tasks.
 
 ```yaml
-- name: Configurando el cluster web
+- name: Configuring the web cluster
   hosts: web-server
   tasks:
-    - name: Instalando nginx
+    - name: Installing nginx
       apt:
         update_cache: yes
         pkg:
@@ -121,19 +121,19 @@ Mientras OpenTofu/Pulumi crean el "hardware" virtual, **Ansible** se encarga de 
 
 ---
 
-## Proyecto Final: Caso Real
+## Final Project: Real Case
 
-El taller culminó con un despliegue completo de una arquitectura balanceada:
-1. **OpenTofu** para crear 3 servidores web y un Load Balancer.
-2. **Ansible** para instalar Nginx en los servidores y configurar el HAProxy en el balanceador.
+The workshop culminated with a complete deployment of a balanced architecture:
+1. **OpenTofu** to create 3 web servers and a Load Balancer.
+2. **Ansible** to install Nginx on the servers and configure HAProxy on the load balancer.
 
 ```mermaid
-graph LR
+flowchart LR
     subgraph Internet
-        Clients["Clientes"]
+        Clients["Clients"]
     end
 
-    subgraph DigitalOcean
+    subgraph DO ["DigitalOcean"]
         LB["HA Proxy (Load Balancer)"]
         Web1["web-server-01"]
         Web2["web-server-02"]
@@ -149,20 +149,19 @@ graph LR
     end
 
     Clients --> LB
-    Controller -->|Provee| DigitalOcean
-    Controller -->|Configura| LB & Web1 & Web2 & Web3
+    Controller --> DO
 ```
 
 ---
 
-## Conclusión
+## Conclusion
 
-La infraestructura como código no es solo una herramienta, es una mentalidad de **automatización primero**. Ya sea que uses CLI, DSLs o lenguajes de programación, el objetivo es el mismo: infraestructura confiable, repetible y documentada.
+Infrastructure as code is not just a tool; it's an **automation-first** mindset. Whether you use CLI, DSLs, or programming languages, the goal remains the same: reliable, repeatable, and documented infrastructure.
 
 ---
 
-### Recursos
-- [Presentación completa (PDF)](/temp/JConf%20Dominicana%20-%20IaC%20para%20todos.pdf)
+### Resources
+- [Full Presentation (PDF)](/temp/JConf%20Dominicana%20-%20IaC%20para%20todos.pdf)
 - [DigitalOcean doctl](https://github.com/digitalocean/doctl)
 - [OpenTofu](https://opentofu.org/)
 - [Pulumi](https://www.pulumi.com/)

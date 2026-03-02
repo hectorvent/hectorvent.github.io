@@ -1,6 +1,7 @@
 /* Constrain logo-style cover images */
 .entry-cover img[src*="logo"],
 .entry-cover img[src*="Ansible"],
+.entry-cover img[src*="ansible-logo"],
 .entry-cover img[src$=".svg"] {
     max-height: 220px !important;
     width: auto !important;

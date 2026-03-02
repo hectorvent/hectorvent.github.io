@@ -49,6 +49,8 @@ binary with GraalVM. It starts in 19 ms, uses 42 MiB at idle, and covers 11 AWS 
 
 ## Community
 
+I am an active member of the [**Postgres MetroPlex Dallas**](https://www.meetup.com/dallas-fort-worth-postgres/) community.
+
 Since **2007** I've been a professor at the
 [**Fundación Código Libre Dominicano**](https://codigolibre.org/), teaching free and open-source
 software in the Dominican Republic. I also tutor Java on Wyzant.

@@ -5,7 +5,7 @@ description: "A talk given at BarCamp Dominican Republic 2020 introducing Ansibl
 tags: ["ansible", "devops", "automation", "linux", "infrastructure", "talk"]
 author: "Hector Ventura"
 cover:
-  image: "https://upload.wikimedia.org/wikipedia/commons/2/24/Ansible_logo.svg"
+  image: "/images/ansible-logo.png"
   alt: "Ansible logo"
 showToc: true
 TocOpen: false

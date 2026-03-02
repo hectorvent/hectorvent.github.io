@@ -42,28 +42,28 @@ Auth required: Never
 Floci follows a clean three-layer architecture for every AWS service it emulates:
 
 ```mermaid
-graph LR
+flowchart LR
     Client["☁️ AWS SDK / CLI"]
 
-    subgraph Floci["  Floci  —  port 4566  "]
+    subgraph Floci ["Floci — port 4566"]
         Router["HTTP Router"]
 
-        subgraph Stateless["Stateless Services"]
-            A["SSM · SQS · SNS\nIAM · STS"]
+        subgraph Stateless ["Stateless Services"]
+            A["SSM · SQS · SNS<br/>IAM · STS"]
         end
 
-        subgraph Persistent["Stateful Services"]
-            B["S3 · DynamoDB\nAPI Gateway"]
+        subgraph Persistent ["Stateful Services"]
+            B["S3 · DynamoDB<br/>API Gateway"]
         end
 
-        subgraph Container["Container Services"]
+        subgraph Container ["Container Services"]
             C["Lambda · ElastiCache · RDS"]
         end
 
         Router --> A
         Router --> B
         Router --> C
-        A & B --> Store[("Storage\n(memory / disk)")]
+        A & B --> Store[("Storage<br/>(memory / disk)")]
     end
 
     Docker["🐳 Docker"]
@@ -120,19 +120,19 @@ One of Floci's most flexible design decisions is its pluggable storage layer. Ev
 own backend, and backends are configurable per service.
 
 ```mermaid
-graph LR
+flowchart LR
     subgraph Services
         SSM2["SSM Service"]
         SQS2["SQS Service"]
         S32["S3 Service"]
     end
 
-    subgraph StorageBackend["StorageBackend&lt;K,V&gt; interface"]
+    subgraph SB ["StorageBackend interface"]
         direction TB
-        IM["InMemoryStorage\nConcurrentHashMap\nEphemeral, fastest"]
-        PS["PersistentStorage\nJSON files, atomic writes\nSurvives restarts"]
-        HS["HybridStorage ✓ default\nIn-memory reads\nAsync disk flush"]
-        WS["WalStorage\nWrite-ahead log\nHigh-throughput workloads"]
+        IM["InMemoryStorage<br/>ConcurrentHashMap<br/>Ephemeral, fastest"]
+        PS["PersistentStorage<br/>JSON files, atomic writes<br/>Survives restarts"]
+        HS["HybridStorage ✓ default<br/>In-memory reads<br/>Async disk flush"]
+        WS["WalStorage<br/>Write-ahead log<br/>High-throughput workloads"]
     end
 
     SSM2 --> HS
@@ -155,18 +155,18 @@ a JavaScript VM or mock interpreter. This means your Node.js, Python, Java, Go, 
 run exactly as they would in production.
 
 ```mermaid
-graph TD
-    Invoke["Invoke API\n:4566/2015-03-31/functions/fn/invocations"]
-    Invoke --> WP["WarmPool\nContainer pool manager"]
+flowchart TD
+    Invoke["Invoke API<br/>:4566/2015-03-31/functions/fn/invocations"]
+    Invoke --> WP["WarmPool<br/>Container pool manager"]
 
     WP -->|container available| CE["ContainerExecutor"]
     WP -->|cold start needed| CL["ContainerLauncher"]
-    CL -->|docker run| DC["Docker Container\n(e.g. public.ecr.aws/lambda/nodejs:22)"]
+    CL -->|docker run| DC["Docker Container<br/>(e.g. public.ecr.aws/lambda/nodejs:22)"]
 
-    subgraph RuntimeApiServer["RuntimeApiServer (Vert.x, port 9200+)"]
+    subgraph RAS ["RuntimeApiServer (Vert.x, port 9200+)"]
         direction LR
-        Next["/runtime/invocation/next\n← container polls here"]
-        Resp["/runtime/invocation/id/response\n← container posts result here"]
+        Next["/runtime/invocation/next<br/>← container polls here"]
+        Resp["/runtime/invocation/id/response<br/>← container posts result here"]
     end
 
     DC -->|Lambda Runtime bootstrap| Next
@@ -343,20 +343,20 @@ and Lambda functions created in `us-east-1` are completely independent from thos
 S3 buckets follow AWS's global bucket namespace model.
 
 ```mermaid
-graph LR
-    subgraph us-east-1
+flowchart LR
+    subgraph US ["us-east-1"]
         SSM1["SSM /prod/db-url"]
         SQS1["SQS orders-queue"]
         DDB1["DynamoDB users"]
     end
 
-    subgraph eu-west-1
+    subgraph EU ["eu-west-1"]
         SSM2["SSM /prod/db-url"]
         SQS2["SQS orders-queue"]
         DDB2["DynamoDB users"]
     end
 
-    subgraph Global
+    subgraph GL ["Global"]
         S3G["S3 my-bucket"]
     end
 ```
