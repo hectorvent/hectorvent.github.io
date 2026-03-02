@@ -17,6 +17,16 @@ go-to choice — until they required auth tokens and locked down their community
 
 That gap is exactly what **Floci** fills.
 
+## Key Numbers: Native Floci vs LocalStack
+
+| Metric | Native Floci | LocalStack | Advantage |
+|---|---|---|---|
+| **Startup Time** | **19 ms** | ~11,000 ms | **550× faster** |
+| **Idle Memory** | **42 MiB** | ~500 MiB | **92% less** |
+| **Lambda Latency** | **2 ms avg** | 26 ms avg | **13× faster** |
+| **Lambda Throughput** | **287 req/s** | 116 req/s | **2.5× faster** |
+| **Price** | **Free Forever** | Auth Token Req. | **$0 / No Auth** |
+
 ## What Is Floci?
 
 **Floci** is a free, open-source local AWS service emulator written in Java using
