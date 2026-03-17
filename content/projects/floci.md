@@ -21,21 +21,21 @@ goal: minimal, lightweight, and always free.
 
 | Metric | Native Floci | LocalStack | Advantage |
 |---|---|---|---|
-| **Startup Time** | **19 ms** | ~11,000 ms | **550× faster** |
-| **Idle Memory** | **42 MiB** | ~500 MiB | **92% less** |
-| **Lambda Latency** | **2 ms avg** | 26 ms avg | **13× faster** |
-| **Lambda Throughput** | **287 req/s** | 116 req/s | **2.5× faster** |
-| **Docker Image Size** | **~47** | ~1,500 MB | **32x smaller** |
+| **Startup Time** | **~24 ms** | ~3,300 ms | **138× faster** |
+| **Idle Memory** | **~13 MiB** | ~143 MiB | **91% less** |
+| **Lambda Latency** | **2 ms avg** | 10 ms avg | **5× faster** |
+| **Lambda Throughput** | **289 req/s** | 120 req/s | **2.4× faster** |
+| **Docker Image Size** | **~90 MB** | ~1.0 GB | **11× smaller** |
 | **Price** | **Free Forever** | Auth Token Req. | **$0 / No Auth** |
 ---
 
 ## Supported AWS Services
 
-SSM · SQS · S3 · DynamoDB · Lambda · SNS · API Gateway · IAM · STS · ElastiCache · RDS
+SSM · SQS · SNS · S3 · DynamoDB · DynamoDB Streams · Lambda · API Gateway REST · API Gateway v2 · IAM · STS · Cognito · KMS · Kinesis · Secrets Manager · CloudFormation · Step Functions · ElastiCache · RDS · EventBridge · CloudWatch Logs · CloudWatch Metrics
 
 Lambda functions run inside **real Docker containers** (Node.js, Python, Java, Go, Ruby) with a
 warm pool for sub-millisecond reuse. ElastiCache and RDS spin up actual Redis and database
-containers on demand.
+containers on demand. All 408 AWS SDK v2 compatibility checks pass.
 
 ---
 
@@ -52,7 +52,7 @@ containers on demand.
 ## Quick Start
 
 ```bash
-docker run --rm -p 4566:4566 hectorvent/floci:native
+docker run --rm -p 4566:4566 hectorvent/floci:latest
 ```
 
 Then point any AWS SDK or CLI at `http://localhost:4566` with any dummy credentials.

@@ -21,10 +21,10 @@ That gap is exactly what **Floci** fills.
 
 | Metric | Native Floci | LocalStack | Advantage |
 |---|---|---|---|
-| **Startup Time** | **19 ms** | ~11,000 ms | **550× faster** |
-| **Idle Memory** | **42 MiB** | ~500 MiB | **92% less** |
-| **Lambda Latency** | **2 ms avg** | 26 ms avg | **13× faster** |
-| **Lambda Throughput** | **287 req/s** | 116 req/s | **2.5× faster** |
+| **Startup Time** | **~24 ms** | ~3,300 ms | **138× faster** |
+| **Idle Memory** | **~13 MiB** | ~143 MiB | **91% less** |
+| **Lambda Latency** | **2 ms avg** | 10 ms avg | **5× faster** |
+| **Lambda Throughput** | **289 req/s** | 120 req/s | **2.4× faster** |
 | **Price** | **Free Forever** | Auth Token Req. | **$0 / No Auth** |
 
 ## What Is Floci?
@@ -39,8 +39,8 @@ popcorn — small, fluffy, and lightweight. That ethos drives the entire design:
 fast startup, and no unnecessary overhead.
 
 ```
-Startup time:  19 ms  (native) / 771 ms (JVM)
-Idle memory:   42 MiB (native) / 96 MiB (JVM)
+Startup time:  24 ms  (native) / 684 ms (JVM)
+Idle memory:   13 MiB (native) / 78 MiB (JVM)
 License:       MIT
 Auth required: Never
 ```
@@ -106,21 +106,32 @@ sequenceDiagram
 
 ## Supported AWS Services
 
-Floci covers 11 major AWS service families out of the box:
+Floci covers 22 AWS service families out of the box:
 
 | Service | Operations | Notable Features |
 |---|---|---|
-| **SSM Parameter Store** | 7 | PutParameter, GetParametersByPath, version history |
-| **SQS** | 10 | Standard & FIFO, DLQ, visibility timeout, message attributes |
-| **S3** | 17 | Versioning, multipart upload, pre-signed URLs, tagging, event notifications |
-| **DynamoDB** | 10 | Query, Scan, UpdateItem with expression support |
-| **Lambda** | Full | Docker container execution, warm pool, SQS/SNS triggers, all runtimes |
-| **API Gateway** | REST v1 | Resources, methods, stages, Lambda proxy, MOCK integrations |
-| **SNS** | Full | Topics, subscriptions, SQS/Lambda/HTTP/Email delivery |
-| **IAM** | Core | Users, roles, groups, access keys, policies |
-| **STS** | Core | AssumeRole, GetCallerIdentity |
-| **ElastiCache** | Replication groups | Redis/Valkey via Docker, auth proxy, SigV4 validation |
-| **RDS** | DB instances & clusters | MySQL, PostgreSQL, MariaDB via Docker, auth proxy |
+| **SSM Parameter Store** | 12 | PutParameter, GetParametersByPath, version history, labels, tagging |
+| **SQS** | 17 | Standard & FIFO, DLQ, visibility timeout, batch operations, tagging |
+| **SNS** | 13 | Topics, subscriptions, SQS/Lambda/HTTP delivery, tagging |
+| **S3** | 30 | Versioning, multipart upload, pre-signed URLs, Object Lock, event notifications |
+| **DynamoDB** | 22 | GSI/LSI, Query, Scan, TTL, transactions, batch operations |
+| **DynamoDB Streams** | 5 | Shard iterators, records, Lambda ESM trigger |
+| **Lambda** | 25 | Docker execution, warm pool, aliases, Function URLs, SQS/Kinesis/DynamoDB Streams ESM |
+| **API Gateway REST** | 24 | Resources, methods, stages, Lambda proxy, MOCK integrations |
+| **API Gateway v2** | 16 | HTTP APIs, routes, integrations, JWT authorizers, stages |
+| **IAM** | 65+ | Users, roles, groups, policies, inline policies, instance profiles, access keys |
+| **STS** | 7 | AssumeRole, WebIdentity, SAML, GetFederationToken, GetSessionToken |
+| **Cognito** | 20 | User pools, app clients, auth flows, JWKS/OpenID well-known endpoints |
+| **KMS** | 15 | Encrypt/decrypt, sign/verify, data keys, aliases |
+| **Kinesis** | 15 | Streams, shards, enhanced fan-out, split/merge |
+| **Secrets Manager** | 10 | Versioning, resource policies, tagging |
+| **CloudFormation** | 12 | Stacks, change sets, resource provisioning |
+| **Step Functions** | 11 | ASL execution, task tokens, execution history |
+| **ElastiCache** | 9 | Redis via Docker, IAM auth, SigV4 validation |
+| **RDS** | 14 | PostgreSQL & MySQL via Docker, IAM auth, JDBC |
+| **EventBridge** | 14 | Custom buses, rules, targets (SQS/SNS/Lambda) |
+| **CloudWatch Logs** | 14 | Log groups, streams, ingestion, filtering |
+| **CloudWatch Metrics** | 5 | Custom metrics, statistics, alarms |
 
 ---
 
@@ -206,39 +217,72 @@ When an invocation arrives:
 | **License** | MIT | Restricted / proprietary |
 | **Auth token required** | Never | Yes |
 | **Security updates** | Yes | Frozen for community tier |
-| **Native binary** | Yes (~47 MB) | No |
+| **Native binary** | Yes (~90 MB) | No |
+| **Docker image size** | ~90 MB | ~1.0 GB |
 | **Docker required for Lambda** | Yes | Yes |
 | **SSM Parameter Store** | ✅ Full | ✅ Full |
 | **SQS** | ✅ Full | ✅ Full |
-| **S3** | ✅ Full | ✅ Full |
-| **DynamoDB** | ✅ Full | ✅ Full |
-| **Lambda** | ✅ Full | ⚠️ Limited in community |
-| **API Gateway** | ✅ Full | ⚠️ Limited in community |
 | **SNS** | ✅ Full | ✅ Full |
-| **ElastiCache** | ✅ Docker-native | ❌ Pro only |
-| **RDS** | ✅ Docker-native | ❌ Pro only |
-| **SQS → Lambda trigger** | ✅ | ❌ Fails in community |
+| **S3** | ✅ Full (incl. Object Lock) | ⚠️ Object Lock partial |
+| **DynamoDB** | ✅ Full (incl. Streams) | ⚠️ Streams partial |
+| **Lambda** | ✅ Full | ✅ Full |
+| **Lambda ESM (SQS, Kinesis, DDB Streams)** | ✅ | ⚠️ Partial |
+| **API Gateway REST** | ✅ Full | ⚠️ Partial |
+| **API Gateway v2 / HTTP API** | ✅ | ❌ Not available |
+| **IAM** | ✅ Full (65+ ops) | ⚠️ Partial |
+| **STS** | ✅ Full (7 ops) | ⚠️ 3 of 7 operations missing |
+| **Cognito** | ✅ Full | ❌ Not available |
+| **KMS** | ✅ Full | ⚠️ ReEncrypt, Sign/Verify missing |
+| **Kinesis** | ✅ Full | ⚠️ PutRecord/GetRecords and EFO broken |
+| **Secrets Manager** | ✅ Full | ⚠️ RotateSecret missing |
+| **CloudFormation** | ✅ Full | ⚠️ Basic only |
+| **Step Functions** | ✅ Full | ⚠️ Partial |
+| **ElastiCache** | ✅ Docker-native + IAM auth | ❌ Not available |
+| **RDS** | ✅ Docker-native + IAM auth | ❌ Not available |
+| **EventBridge** | ✅ Full | ⚠️ Partial |
+| **CloudWatch Logs** | ✅ Full | ⚠️ Tagging and FilterLogEvents missing |
+| **CloudWatch Metrics** | ✅ Full | ✅ Full |
+| **S3 Event Notifications** | ✅ | ❌ SNS subscription fails |
 
 ### AWS SDK Compatibility Test Results
 
-Floci was benchmarked against LocalStack 4.14.0 using a suite of 166 AWS SDK v2 checks:
+Floci was benchmarked against LocalStack 4.14.0 using a suite of 408 AWS SDK v2 checks:
 
-| Category | Checks | Floci | LocalStack |
+| Test Suite | Checks | Floci | LocalStack |
 |---|---|---|---|
-| SQS | 15 | ✅ 15/15 | ✅ 15/15 |
-| SQS → Lambda ESM | 13 | ✅ 13/13 | ❌ 0/13 |
+| SQS | 22 | ✅ 22/22 | ✅ 22/22 |
+| SQS → Lambda ESM | 12 | ✅ 12/12 | ⚠️ 10/12 |
+| SNS | 12 | ✅ 12/12 | ✅ 12/12 |
 | S3 | 23 | ✅ 23/23 | ⚠️ 22/23 |
+| S3 Object Lock | 30 | ✅ 30/30 | ⚠️ 24/30 |
+| S3 Advanced | 13 | ✅ 13/13 | ⚠️ 10/13 |
 | SSM | 12 | ✅ 12/12 | ✅ 12/12 |
 | DynamoDB | 18 | ✅ 18/18 | ✅ 18/18 |
+| DynamoDB Advanced | 18 | ✅ 18/18 | ⚠️ 16/18 |
+| DynamoDB LSI | 4 | ✅ 4/4 | ✅ 4/4 |
+| DynamoDB Streams | 12 | ✅ 12/12 | ⚠️ 8/12 |
 | Lambda CRUD | 10 | ✅ 10/10 | ✅ 10/10 |
 | Lambda Invoke | 4 | ✅ 4/4 | ✅ 4/4 |
 | Lambda HTTP | 8 | ✅ 8/8 | ✅ 8/8 |
 | Lambda Warm Pool | 3 | ✅ 3/3 | ✅ 3/3 |
-| Lambda Concurrent | 3 | ✅ 3/3 | ❌ 0/3 |
-| API Gateway | 34 | ✅ 34/34 | ⚠️ 17/34 |
-| API Gateway Execute | 11 | ✅ 11/11 | ⚠️ 6/11 |
-| S3 Event Notifications | 11 | ✅ 11/11 | ⚠️ 8/11 |
-| **Total** | **166** | **✅ 166/166 (100%)** | **⚠️ 140/166 (84%)** |
+| Lambda Concurrent | 3 | ✅ 3/3 | ✅ 3/3 |
+| API Gateway REST | 43 | ✅ 43/43 | ⚠️ 42/43 |
+| API Gateway v2 / HTTP API | 5 | ✅ 5/5 | ❌ 0/5 — not in community |
+| S3 Event Notifications | 11 | ✅ 11/11 | ❌ 0/11 — SNS subscription fails |
+| IAM | 32 | ✅ 32/32 | ⚠️ 27/32 |
+| STS | 18 | ✅ 18/18 | ⚠️ 6/18 |
+| IAM Performance | 3 | ✅ 3/3 | ✅ 3/3 |
+| EventBridge | 14 | ✅ 14/14 | ⚠️ 13/14 |
+| CloudWatch Logs | 12 | ✅ 12/12 | ⚠️ 9/12 |
+| CloudWatch Metrics | 14 | ✅ 14/14 | ✅ 14/14 |
+| Secrets Manager | 15 | ✅ 15/15 | ⚠️ 13/15 |
+| KMS | 16 | ✅ 16/16 | ⚠️ 12/16 |
+| Cognito | 8 | ✅ 8/8 | ❌ 0/8 — not in community |
+| Step Functions | 7 | ✅ 7/7 | ⚠️ 6/7 |
+| Kinesis | 15 | ✅ 15/15 | ⚠️ 8/15 |
+| ElastiCache | 21 | ✅ 21/21 | ❌ not in community |
+| RDS | 50 | ✅ 50/50 | ❌ not in community |
+| **Total** | **408** | **✅ 408/408 (100%)** | **⚠️ 305/383 (80%) on overlapping tests** |
 
 ---
 
@@ -248,21 +292,23 @@ Floci was benchmarked against LocalStack 4.14.0 using a suite of 166 AWS SDK v2 
 
 | Metric | JVM | Native | Improvement |
 |---|---|---|---|
-| Startup time | 771 ms | **19 ms** | 40× faster |
-| Idle memory | 96 MiB | **42 MiB** | 56% less |
-| Memory under load | 233 MiB | **67 MiB** | 71% less |
-| Lambda cold start | 1,127 ms | **582 ms** | 1.9× faster |
-| Lambda warm avg latency | 4 ms | **2 ms** | 2× faster |
-| Throughput (10k invocations) | 281 req/s | 288 req/s | ~equivalent |
+| Startup time | 684 ms | **24 ms** | 28× faster |
+| Idle memory | 78 MiB | **13 MiB** | 83% less |
+| Memory under load | 176 MiB | **80 MiB** | 55% less |
+| Lambda cold start | 1,000 ms | **158 ms** | 6.3× faster |
+| Lambda warm avg latency | 3 ms | **2 ms** | 1.5× faster |
+| Throughput (10k invocations) | 280 req/s | 289 req/s | ~equivalent |
 
 ### Floci Native vs LocalStack Community
 
 | Metric | Floci Native | LocalStack 4.14.0 | Floci Advantage |
 |---|---|---|---|
-| Startup time | **19 ms** | ~11,000 ms | **550× faster** |
-| Idle memory | **42 MiB** | ~500 MiB | **92% less** |
-| Lambda warm latency | **2 ms avg** | 26 ms avg | **13× faster** |
-| Lambda throughput | **287 req/s** | 116 req/s | **2.5× faster** |
+| Startup time | **~24 ms** | ~3,300 ms | **138× faster** |
+| Idle memory | **~13 MiB** | ~143 MiB | **91% less** |
+| Memory after full test run | **~80 MiB** | ~827 MiB | **90% less** |
+| Lambda warm latency (avg) | **2 ms** | 10 ms | **5× faster** |
+| Lambda warm latency (max) | **6 ms** | 68 ms | **11× faster** |
+| Lambda throughput | **289 req/s** | 120 req/s | **2.4× faster** |
 
 ---
 
@@ -271,13 +317,13 @@ Floci was benchmarked against LocalStack 4.14.0 using a suite of 166 AWS SDK v2 
 ### Docker (one command)
 
 ```bash
-docker run --rm -p 4566:4566 hectorvent/floci:native
+docker run --rm -p 4566:4566 hectorvent/floci:latest
 ```
 
 Or use the JVM image:
 
 ```bash
-docker run --rm -p 4566:4566 hectorvent/floci:latest
+docker run --rm -p 4566:4566 hectorvent/floci:latest-jvm
 ```
 
 ### docker-compose (with Lambda + ElastiCache + RDS)
@@ -285,19 +331,16 @@ docker run --rm -p 4566:4566 hectorvent/floci:latest
 ```yaml
 services:
   floci:
-    image: hectorvent/floci:native
+    image: hectorvent/floci:latest
     ports:
       - "4566:4566"
-      - "6379-6399:6379-6399"   # ElastiCache proxies
-      - "7000-7099:7000-7099"   # RDS proxies
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - ./data:/data
+      - ./data:/app/data
     environment:
-      EMULATOR_STORAGE_MODE: hybrid
-      EMULATOR_STORAGE_PERSISTENT_PATH: /data
-      EMULATOR_SERVICES_ELASTICACHE_DOCKER_NETWORK: myapp_default
-      EMULATOR_SERVICES_RDS_DOCKER_NETWORK: myapp_default
+      FLOCI_STORAGE_MODE: hybrid
+      FLOCI_STORAGE_PERSISTENT_PATH: /app/data
+      FLOCI_SERVICES_DOCKER_NETWORK: myapp_default
 ```
 
 ### Configure your AWS SDK
@@ -329,8 +372,11 @@ S3Client s3 = S3Client.builder()
 ### Build from source
 
 ```bash
-git clone https://github.com/hectorvent/floci
+git clone https://github.com/hectorvent/floci.git
 cd floci
+
+# Dev mode with hot reload
+mvn quarkus:dev
 
 # JVM build
 mvn clean package -DskipTests
@@ -339,9 +385,6 @@ java -jar target/quarkus-app/quarkus-run.jar
 # Native binary (requires GraalVM / Mandrel)
 mvn clean package -Dnative -DskipTests
 ./target/floci-runner
-
-# Dev mode with hot reload
-mvn quarkus:dev
 ```
 
 ---
@@ -384,9 +427,10 @@ production, "it works on my machine" becomes "it works, period."
 
 ## What's Next
 
-Floci is actively developed. Upcoming work includes expanding Lambda event source mappings
-(Kinesis, DynamoDB Streams), CloudFormation stack support, and CloudWatch Logs. Contributions are
-welcome at [github.com/hectorvent/floci](https://github.com/hectorvent/floci).
+Floci is actively developed. Since the initial release, CloudFormation stacks, Step Functions,
+DynamoDB Streams, Kinesis, Cognito, KMS, Secrets Manager, EventBridge, CloudWatch Logs and Metrics,
+API Gateway v2, and expanded IAM/STS coverage have all landed. Contributions are welcome at
+[github.com/hectorvent/floci](https://github.com/hectorvent/floci).
 
 ---
 
