@@ -45,6 +45,13 @@ jobs:
           HUGO_ENVIRONMENT: production
         run: hugo --minify --baseURL "${{ steps.pages.outputs.base_url }}/"
 
+      - name: Verify floci docs in build output
+        run: |
+          echo "Files in public/floci/:"
+          find public/floci -type f | sort || echo "public/floci does not exist!"
+          echo "Total files in public/:"
+          find public -type f | wc -l
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
