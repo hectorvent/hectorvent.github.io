@@ -1,0 +1,12 @@
+{{- define "main" }}
+<script>
+  (function() {
+    var path = window.location.pathname;
+    if (path.indexOf("/floci") === 0) {
+      var newUrl = "https://floci.io" + path;
+      window.location.replace(newUrl);
+    }
+  })();
+</script>
+<div class="not-found">404</div>
+{{- end }}{{/* end main */ -}}

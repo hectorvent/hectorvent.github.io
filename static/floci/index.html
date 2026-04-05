@@ -5,7 +5,10 @@
   <meta http-equiv="refresh" content="0; url=https://floci.io/floci">
   <link rel="canonical" href="https://floci.io/floci">
   <title>Redirecting to floci.io/floci...</title>
-  <script>window.location.replace("https://floci.io/floci");</script>
+  <script>
+    var path = window.location.pathname;
+    window.location.replace("https://floci.io" + path);
+  </script>
 </head>
 <body>
   <p>This project has moved. If you are not redirected automatically, <a href="https://floci.io/floci">click here</a>.</p>
