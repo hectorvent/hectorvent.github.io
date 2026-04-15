@@ -1,0 +1,1350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Real-Time Data Streaming with Postgres & Debezium</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap');
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --pg-blue:      #2f6fa8;
+      --pg-light:     #4a9fd4;
+      --pg-dark:      #1d4e7a;
+      --kafka-orange: #d4621a;
+      --green:        #1e7e34;
+      --green-light:  #28a745;
+      --purple:       #6f42c1;
+      --red:          #b02020;
+
+      --bg:           #f4f6f9;
+      --surface:      #ffffff;
+      --surface2:     #f0f3f7;
+      --border:       #d0d7de;
+      --border-light: #e8ecf0;
+
+      --text:         #0d1117;
+      --text-sub:     #3d4a5c;
+      --text-muted:   #6b7a8e;
+
+      --accent:       var(--pg-blue);
+    }
+
+    html, body {
+      width: 100%; height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      overflow: hidden;
+    }
+
+    /* ─── DECK ─── */
+    .deck { width: 100vw; height: 100vh; position: relative; }
+
+    .slide {
+      position: absolute; inset: 0;
+      display: flex; flex-direction: column;
+      opacity: 0; pointer-events: none;
+      overflow: hidden;
+      will-change: transform, opacity;
+    }
+
+    /* direction classes set before transition starts */
+    .slide.enter-right  { transform: translateX(100%); }
+    .slide.enter-left   { transform: translateX(-100%); }
+    .slide.exit-right   { transform: translateX(100%); opacity: 1; }
+    .slide.exit-left    { transform: translateX(-100%); opacity: 1; }
+
+    .slide.active {
+      opacity: 1; pointer-events: all;
+      transform: translateX(0);
+      transition: transform 0.4s cubic-bezier(0.4,0,0.2,1),
+                  opacity  0.4s cubic-bezier(0.4,0,0.2,1);
+    }
+
+    .slide.animating {
+      transition: transform 0.4s cubic-bezier(0.4,0,0.2,1),
+                  opacity  0.4s cubic-bezier(0.4,0,0.2,1);
+    }
+
+    /* ─── PROGRESS ─── */
+    .progress-bar {
+      position: fixed; top: 0; left: 0; height: 4px; z-index: 200;
+      background: linear-gradient(90deg, var(--pg-blue), var(--kafka-orange));
+      transition: width 0.4s ease;
+    }
+
+    /* ─── NAV ─── */
+    .nav {
+      position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+      display: flex; align-items: center; gap: 12px; z-index: 100;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 50px;
+      padding: 8px 18px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.12);
+    }
+
+    .nav button {
+      background: none; border: none; cursor: pointer;
+      color: var(--text); width: 36px; height: 36px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.15s;
+      font-size: 0;
+    }
+    .nav button:hover:not(:disabled) { background: var(--surface2); }
+    .nav button:disabled { color: var(--border); cursor: not-allowed; }
+
+    .slide-counter {
+      font-size: 14px; font-weight: 600; color: var(--text-muted);
+      min-width: 56px; text-align: center;
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* ─── SHARED ELEMENTS ─── */
+    .slide-num-badge {
+      position: absolute; top: 28px; right: 36px;
+      font-size: 13px; color: var(--text-muted);
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 600;
+    }
+
+    .slide-label {
+      font-size: 14px; font-weight: 700;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--pg-blue); margin-bottom: 8px;
+    }
+
+    .slide-heading {
+      font-size: clamp(2rem, 3.5vw, 3rem);
+      font-weight: 800; letter-spacing: -0.025em;
+      color: var(--text); margin-bottom: 10px; line-height: 1.1;
+    }
+
+    .divider {
+      width: 52px; height: 4px; border-radius: 2px;
+      background: linear-gradient(90deg, var(--pg-blue), var(--kafka-orange));
+      margin-bottom: 20px;
+    }
+
+    .tag {
+      display: inline-block;
+      border-radius: 6px; padding: 6px 14px;
+      font-size: 14px; font-weight: 500;
+      font-family: 'JetBrains Mono', monospace;
+      border: 1px solid var(--border);
+      background: var(--surface2);
+      color: var(--text-sub);
+    }
+    .tag.blue   { background: #e8f1f9; border-color: #b0cfe8; color: var(--pg-dark); }
+    .tag.orange { background: #fdf0e8; border-color: #f0c090; color: var(--kafka-orange); }
+    .tag.green  { background: #e8f5eb; border-color: #a8d5b0; color: var(--green); }
+    .tag.purple { background: #f2eefa; border-color: #c8b0e8; color: var(--purple); }
+
+    .feature-list { list-style: none; display: flex; flex-direction: column; gap: 16px; }
+    .feature-list li { display: flex; align-items: flex-start; gap: 12px; font-size: 16px; line-height: 1.55; color: var(--text-sub); }
+
+    .icon {
+      width: 26px; height: 26px; border-radius: 7px; flex-shrink: 0; margin-top: 1px;
+      display: flex; align-items: center; justify-content: center; font-size: 13px;
+    }
+    .icon-green  { background: #e2f5e5; color: var(--green-light); }
+    .icon-orange { background: #fdeede; color: var(--kafka-orange); }
+    .icon-blue   { background: #e0eef8; color: var(--pg-blue); }
+    .icon-purple { background: #ede8f8; color: var(--purple); }
+
+    .code-block {
+      background: #1e2533;
+      color: #cdd9e5;
+      border-radius: 10px;
+      padding: 20px 24px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 15px; line-height: 1.8;
+      overflow-x: auto;
+      white-space: pre;
+    }
+    .code-block .kw  { color: #e06c75; }
+    .code-block .str { color: #98c379; }
+    .code-block .val { color: #61afef; }
+    .code-block .fn  { color: #e5c07b; }
+    .code-block .cmt { color: #5c6370; font-style: italic; }
+
+    /* ══════════════════════════════════════
+       SLIDE 1 — TITLE
+    ══════════════════════════════════════ */
+    .slide-title {
+      background: linear-gradient(150deg, #e8f2fb 0%, #f8f9fa 45%, #fef2e8 100%);
+      justify-content: center; align-items: center; text-align: center;
+    }
+
+    .slide-title .grid-bg {
+      position: absolute; inset: 0; pointer-events: none;
+      background-image:
+        linear-gradient(var(--border-light) 1px, transparent 1px),
+        linear-gradient(90deg, var(--border-light) 1px, transparent 1px);
+      background-size: 64px 64px;
+      mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 20%, transparent 100%);
+    }
+
+    .slide-title .content { position: relative; z-index: 1; max-width: 960px; padding: 40px; }
+
+    .event-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(47,111,168,0.1); border: 1px solid rgba(47,111,168,0.3);
+      border-radius: 24px; padding: 8px 18px;
+      font-size: 14px; font-weight: 600; color: var(--pg-blue);
+      margin-bottom: 36px; letter-spacing: 0.02em;
+    }
+
+    .title-main {
+      font-size: clamp(2.6rem, 5.5vw, 4.6rem);
+      font-weight: 900; line-height: 1.05; letter-spacing: -0.03em;
+      margin-bottom: 28px; color: var(--text);
+    }
+    .title-main .hl-pg  { color: var(--pg-blue); }
+    .title-main .hl-deb { color: var(--kafka-orange); }
+
+    .title-sub {
+      font-size: 1.2rem; color: var(--text-muted); font-weight: 400;
+      margin-bottom: 52px; line-height: 1.65; max-width: 640px; margin-left: auto; margin-right: auto;
+    }
+
+    .speaker-chip {
+      display: inline-flex; align-items: center; gap: 14px;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 50px; padding: 10px 22px 10px 10px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+    }
+
+    .avatar {
+      width: 50px; height: 50px; border-radius: 50%; flex-shrink: 0;
+      background: linear-gradient(135deg, var(--pg-blue), var(--kafka-orange));
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 800; font-size: 17px; color: #fff;
+    }
+
+    .speaker-name { font-weight: 700; font-size: 16px; color: var(--text); }
+    .speaker-role { font-size: 13px; color: var(--text-muted); margin-top: 2px; }
+
+    .title-date { margin-top: 36px; font-size: 13px; color: var(--text-muted); letter-spacing: 0.05em; text-transform: uppercase; }
+
+    /* ══════════════════════════════════════
+       SLIDE 2 — ABOUT
+    ══════════════════════════════════════ */
+    .slide-about {
+      background: var(--bg);
+      padding: 36px 64px 44px;
+      justify-content: flex-start;
+    }
+
+    .about-grid {
+      display: grid; grid-template-columns: 240px 1fr; gap: 40px; align-items: start; flex: 1;
+    }
+
+    .about-avatar-col { display: flex; flex-direction: column; align-items: center; gap: 18px; }
+
+    .about-avatar {
+      width: 152px; height: 152px; border-radius: 22px;
+      background: linear-gradient(135deg, var(--pg-blue) 0%, var(--kafka-orange) 100%);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 58px; font-weight: 900; color: #fff;
+      box-shadow: 0 8px 32px rgba(47,111,168,0.25);
+    }
+
+    .about-name { font-size: 1.3rem; font-weight: 700; color: var(--text); text-align: center; }
+    .about-location { font-size: 13px; color: var(--text-muted); display: flex; align-items: center; gap: 4px; }
+    .about-socials { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+
+    .social-pill {
+      display: flex; align-items: center; gap: 5px;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 20px; padding: 5px 12px; font-size: 12px; color: var(--text-sub);
+    }
+
+    .about-details { display: flex; flex-direction: column; gap: 18px; }
+
+    .detail-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 12px; padding: 18px 22px;
+    }
+
+    .detail-card-title {
+      font-size: 11px; font-weight: 700; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--text-muted); margin-bottom: 10px;
+    }
+
+    .detail-card p { font-size: 16px; line-height: 1.65; color: var(--text-sub); }
+
+    .tag-list { display: flex; flex-wrap: wrap; gap: 8px; }
+
+    /* ══════════════════════════════════════
+       SLIDE 3 — AGENDA
+    ══════════════════════════════════════ */
+    .slide-agenda { background: var(--bg); padding: 36px 64px 44px; }
+
+    .agenda-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; flex: 1; }
+
+    .agenda-item {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 14px; padding: 24px 26px;
+      display: flex; gap: 18px; align-items: flex-start;
+      position: relative; overflow: hidden;
+    }
+
+    .agenda-item::before {
+      content: ''; position: absolute; top: 0; left: 0; bottom: 0; width: 4px;
+    }
+    .agenda-item:nth-child(1)::before { background: var(--pg-blue); }
+    .agenda-item:nth-child(2)::before { background: var(--kafka-orange); }
+    .agenda-item:nth-child(3)::before { background: var(--green-light); }
+    .agenda-item:nth-child(4)::before { background: var(--purple); }
+    .agenda-item:nth-child(5)::before { background: var(--red); }
+    .agenda-item:nth-child(6)::before { background: var(--pg-dark); }
+
+    .agenda-num {
+      font-size: 30px; font-weight: 900; color: var(--border);
+      font-family: 'JetBrains Mono', monospace; flex-shrink: 0; line-height: 1;
+    }
+
+    .agenda-text h3 { font-size: 17px; font-weight: 700; color: var(--text); margin-bottom: 5px; }
+    .agenda-text p  { font-size: 15px; color: var(--text-muted); line-height: 1.55; }
+
+    /* ══════════════════════════════════════
+       SLIDE 4 — CDC
+    ══════════════════════════════════════ */
+    .slide-cdc { background: var(--bg); padding: 36px 64px 44px; }
+
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; align-items: start; flex: 1; }
+
+    .big-quote {
+      font-size: 1.2rem; line-height: 1.75; color: var(--text-sub);
+      border-left: 4px solid var(--pg-blue); padding-left: 20px;
+      margin: 8px 0 24px; font-style: italic;
+    }
+
+    .ops-card {
+      background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 24px;
+    }
+    .ops-card h3 {
+      font-size: 12px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.09em; color: var(--text-muted); margin-bottom: 18px;
+    }
+
+    .op-row {
+      display: flex; align-items: center; gap: 14px;
+      padding: 12px 0; border-bottom: 1px solid var(--border-light);
+    }
+    .op-row:last-of-type { border-bottom: none; }
+
+    .op-badge {
+      font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700;
+      padding: 5px 14px; border-radius: 6px; min-width: 84px; text-align: center;
+    }
+    .op-insert { background: #e8f5eb; border: 1px solid #a8d5b0; color: var(--green); }
+    .op-update { background: #e0eef8; border: 1px solid #90c0e0; color: var(--pg-blue); }
+    .op-delete { background: #fde8e8; border: 1px solid #e8a0a0; color: var(--red); }
+    .op-desc   { font-size: 15px; color: var(--text-sub); }
+
+    /* ══════════════════════════════════════
+       SLIDE 5 — WAL
+    ══════════════════════════════════════ */
+    .slide-wal { background: var(--bg); padding: 36px 64px 44px; }
+
+    /* flow section: label + diagram row */
+    .flow-section { margin-bottom: 12px; flex-shrink: 0; }
+
+    .flow-badge {
+      display: inline-flex; align-items: center; gap: 7px;
+      font-size: 11px; font-weight: 700; letter-spacing: 0.09em; text-transform: uppercase;
+      padding: 4px 12px; border-radius: 20px; margin-bottom: 10px;
+    }
+    .flow-badge.prod {
+      background: #e0eef8; color: var(--pg-dark); border: 1px solid #b0cfe8;
+    }
+    .flow-badge.demo {
+      background: #e2f5e5; color: var(--green); border: 1px solid #a8d5b0;
+    }
+    .flow-badge .dot {
+      width: 7px; height: 7px; border-radius: 50%;
+    }
+    .flow-badge.prod .dot { background: var(--pg-blue); }
+    .flow-badge.demo .dot { background: var(--green-light); }
+
+    .arch-diagram {
+      display: flex; align-items: center;
+      gap: 0; padding: 10px 16px;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 14px;
+    }
+
+    .arch-box {
+      background: var(--bg); border: 2px solid var(--border);
+      border-radius: 12px; padding: 12px 18px; text-align: center; min-width: 120px;
+    }
+    .arch-box .box-icon  { font-size: 28px; margin-bottom: 5px; }
+    .arch-box .box-label { font-size: 14px; font-weight: 700; color: var(--text); }
+    .arch-box .box-sub   { font-size: 12px; color: var(--text-muted); margin-top: 2px; font-family: 'JetBrains Mono', monospace; }
+
+    .arch-box.hl-pg     { border-color: var(--pg-blue);      background: #eef4fb; }
+    .arch-box.hl-deb    { border-color: var(--kafka-orange);  background: #fdf4ee; }
+    .arch-box.hl-kafka  { border-color: var(--purple);        background: #f3eefb; }
+    .arch-box.hl-sink   { border-color: var(--green-light);   background: #eef8f0; }
+
+    /* embedded app box — wraps debezium + consumer together */
+    .arch-box-compound {
+      background: #eef8f0; border: 2px solid var(--green-light);
+      border-radius: 12px; padding: 12px 18px; text-align: center;
+      position: relative;
+    }
+    .arch-box-compound .box-icon  { font-size: 28px; margin-bottom: 4px; }
+    .arch-box-compound .box-label { font-size: 14px; font-weight: 700; color: var(--text); }
+    .arch-box-compound .box-sub   { font-size: 12px; color: var(--text-muted); margin-top: 2px; font-family: 'JetBrains Mono', monospace; }
+    .arch-box-compound .inner-pills {
+      display: flex; gap: 6px; justify-content: center; margin-top: 8px; flex-wrap: wrap;
+    }
+    .arch-box-compound .inner-pill {
+      font-size: 12px; font-weight: 600; font-family: 'JetBrains Mono', monospace;
+      padding: 3px 10px; border-radius: 10px;
+    }
+    .pill-deb  { background: #fdeede; color: var(--kafka-orange); border: 1px solid #f0c090; }
+    .pill-app  { background: #e0eef8; color: var(--pg-blue);      border: 1px solid #b0cfe8; }
+
+    .arch-arrow {
+      display: flex; flex-direction: column; align-items: center; width: 60px; flex-shrink: 0;
+    }
+    .arch-arrow .line {
+      width: 100%; height: 2px;
+      background: linear-gradient(90deg, var(--border), var(--text-muted));
+      position: relative;
+    }
+    .arch-arrow .line::after {
+      content: ''; position: absolute; right: -6px; top: -4px;
+      border: 5px solid transparent; border-left: 8px solid var(--text-muted);
+    }
+    .arch-arrow .label {
+      font-size: 12px; color: var(--text-muted); margin-top: 6px;
+      font-family: 'JetBrains Mono', monospace; white-space: nowrap;
+    }
+
+    /* WAL slide — wider arrows so connector labels are readable */
+    .slide-wal .two-col { flex: 1; min-height: 0; }
+    .slide-wal .arch-arrow { width: 100px; }
+    .slide-wal .arch-arrow .label { font-size: 13px; }
+
+    /* ══════════════════════════════════════
+       SLIDE 6 — DEBEZIUM
+    ══════════════════════════════════════ */
+    .slide-debezium { background: var(--bg); padding: 36px 64px 44px; }
+
+    .debezium-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; flex: 1; }
+
+    .deb-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 14px; padding: 26px; display: flex; flex-direction: column; gap: 12px;
+    }
+    .deb-icon {
+      width: 50px; height: 50px; border-radius: 13px;
+      display: flex; align-items: center; justify-content: center; font-size: 26px;
+    }
+    .deb-card h3 { font-size: 17px; font-weight: 700; color: var(--text); }
+    .deb-card p  { font-size: 20px; color: var(--text-sub); line-height: 1.6; }
+
+    /* ══════════════════════════════════════
+       SLIDE 7 — SETUP
+    ══════════════════════════════════════ */
+    .slide-setup { background: var(--bg); padding: 36px 64px 44px; }
+
+    .setup-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; flex: 1; }
+
+    .setup-step { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+
+    .setup-step-header {
+      padding: 14px 20px; background: var(--surface2); border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; gap: 10px;
+    }
+    .step-num {
+      width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0;
+      background: linear-gradient(135deg, var(--pg-blue), var(--kafka-orange));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 700; color: #fff;
+    }
+    .setup-step-header span { font-size: 15px; font-weight: 600; color: var(--text); }
+    .setup-step .code-block { border-radius: 0; font-size: 14px; white-space: pre; }
+
+    /* ══════════════════════════════════════
+       SLIDE 8 — USE CASES
+    ══════════════════════════════════════ */
+    .slide-usecases { background: var(--bg); padding: 36px 64px 44px; }
+
+    .usecase-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; flex: 1; }
+
+    .usecase-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 16px; padding: 30px; display: flex; gap: 22px; align-items: flex-start;
+    }
+    .usecase-icon {
+      width: 56px; height: 56px; border-radius: 15px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center; font-size: 28px;
+    }
+    .usecase-text h3 { font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 8px; }
+    .usecase-text p  { font-size: 20px; color: var(--text-sub); line-height: 1.65; }
+
+    /* ══════════════════════════════════════
+       SLIDE 9 — DEMO
+    ══════════════════════════════════════ */
+    .slide-demo {
+      background: linear-gradient(160deg, #eef6ff 0%, #f8f9fa 50%, #eefaf2 100%);
+      padding: 36px 64px 44px;
+      min-height: 0;
+    }
+    .slide-demo .slide-label  { margin-bottom: 6px; }
+    .slide-demo .slide-heading { margin-bottom: 8px; }
+    .slide-demo .divider { margin-bottom: 16px; }
+
+    .demo-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 28px;
+      align-items: stretch;
+      flex: 1;
+      min-height: 0;
+    }
+
+    /* Each column is a flex column so children can grow/fill */
+    .demo-grid > div {
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+    }
+
+    .demo-section-title {
+      font-size: 13px; font-weight: 700; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--text-muted);
+      margin-bottom: 10px; flex-shrink: 0;
+    }
+
+    /* compact embedded flow inside the demo slide */
+    .demo-flow {
+      display: flex; align-items: center; gap: 0;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 12px; padding: 14px 18px;
+      margin-bottom: 14px; flex-shrink: 0;
+    }
+    .demo-flow .arch-box  { min-width: 110px; padding: 12px 16px; }
+    .demo-flow .arch-box .box-icon  { font-size: 26px; margin-bottom: 5px; }
+    .demo-flow .arch-box .box-label { font-size: 14px; }
+    .demo-flow .arch-box .box-sub   { font-size: 12px; }
+    .demo-flow .arch-arrow { width: 52px; }
+
+    .demo-box {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 12px; padding: 16px 20px; margin-bottom: 14px; flex-shrink: 0;
+    }
+
+    .table-fields {
+      display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px;
+    }
+    .field-pill {
+      display: flex; align-items: center; gap: 6px;
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 8px; padding: 8px 16px;
+      font-size: 15px; font-weight: 500;
+    }
+    .field-pill .ftype {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px; color: var(--text-muted);
+    }
+
+    .cmd-block {
+      background: #1e2533; color: #cdd9e5;
+      border-radius: 10px; padding: 16px 22px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 15px; line-height: 1.75;
+      white-space: pre; flex-shrink: 0;
+    }
+    .cmd-block .prompt { color: #61afef; }
+    .cmd-block .cmd    { color: #98c379; }
+    .cmd-block .cmt    { color: #5c6370; font-style: italic; }
+
+    /* fraud scenario cards — fill column height evenly */
+    .scenario-list {
+      display: flex; flex-direction: column;
+      justify-content: space-between;
+      flex: 1; gap: 0;
+    }
+
+    .scenario-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 12px; padding: 14px 20px;
+      display: flex; gap: 16px; align-items: center;
+      flex: 1;
+    }
+    .scenario-card + .scenario-card { margin-top: 10px; }
+    .scenario-card .s-icon {
+      width: 46px; height: 46px; border-radius: 12px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center; font-size: 24px;
+    }
+    .scenario-card .s-body { flex: 1; min-width: 0; }
+    .scenario-card .s-body h4 { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+    .scenario-card .s-body p  { font-size: 13.5px; color: var(--text-muted); line-height: 1.45; }
+    .scenario-card .s-body .s-badges { display: flex; gap: 7px; flex-wrap: wrap; margin-top: 6px; }
+    .s-badge {
+      font-size: 13px; font-weight: 600; padding: 3px 10px; border-radius: 5px;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .s-badge.amount  { background: #fdeede; color: var(--kafka-orange); border: 1px solid #f0c090; }
+    .s-badge.travel  { background: #fde8e8; color: var(--red);          border: 1px solid #e8a0a0; }
+    .s-badge.normal  { background: #e2f5e5; color: var(--green);        border: 1px solid #a8d5b0; }
+    .s-badge.timing  { background: var(--surface2); color: var(--text-muted); border: 1px solid var(--border); }
+
+    /* ══════════════════════════════════════
+       SLIDE 10 — Q&A
+    ══════════════════════════════════════ */
+    .slide-qa {
+      background: linear-gradient(150deg, #e8f2fb 0%, #f8f9fa 45%, #fef2e8 100%);
+      justify-content: center; align-items: center; text-align: center;
+    }
+    .slide-qa .grid-bg {
+      position: absolute; inset: 0; pointer-events: none;
+      background-image:
+        linear-gradient(var(--border-light) 1px, transparent 1px),
+        linear-gradient(90deg, var(--border-light) 1px, transparent 1px);
+      background-size: 64px 64px;
+      mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 20%, transparent 100%);
+    }
+    .qa-content { position: relative; z-index: 1; max-width: 680px; padding: 40px; }
+
+    .qa-big {
+      font-size: clamp(4rem, 9vw, 7rem); font-weight: 900;
+      letter-spacing: -0.04em; line-height: 1; margin-bottom: 16px;
+      background: linear-gradient(135deg, var(--pg-blue), var(--kafka-orange));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .qa-sub { font-size: 1.15rem; color: var(--text-sub); margin-bottom: 40px; line-height: 1.6; }
+
+    .qa-links { display: flex; flex-wrap: wrap; gap: 14px; justify-content: center; }
+
+    .qa-link {
+      display: flex; align-items: center; gap: 10px;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 12px; padding: 13px 22px; font-size: 15px;
+      color: var(--text-sub); text-decoration: none; font-weight: 500;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      transition: box-shadow 0.15s, border-color 0.15s;
+    }
+    .qa-link:hover { border-color: var(--pg-blue); box-shadow: 0 4px 16px rgba(47,111,168,0.15); }
+
+  </style>
+</head>
+<body>
+
+<div class="progress-bar" id="progressBar" style="width:10%"></div>
+
+<div class="deck" id="deck">
+
+  <!-- ══ SLIDE 1 — TITLE ══ -->
+  <section class="slide slide-title active" data-index="0">
+    <div class="grid-bg"></div>
+    <div class="content">
+      <div class="event-badge">
+        📅&nbsp; Dallas/Fort Worth Postgres · April 14, 2026
+      </div>
+
+      <h1 class="title-main">
+        Real-Time Data Streaming<br/>
+        with <span class="hl-pg">PostgreSQL</span><br/>
+        and <span class="hl-deb">Debezium</span>
+      </h1>
+
+      <p class="title-sub">
+        Capture every INSERT, UPDATE &amp; DELETE straight from the WAL —<br/>
+        sub-second latency, zero schema changes required.
+      </p>
+
+      <div class="speaker-chip">
+        <div class="avatar">HV</div>
+        <div>
+          <div class="speaker-name">Hector Ventura</div>
+          <div class="speaker-role">Lead Software Engineer · Debezium Contributor</div>
+        </div>
+      </div>
+
+      <div class="title-date">McKinney, Texas — hectorvent.dev</div>
+    </div>
+    <div class="slide-num-badge">01 / 10</div>
+  </section>
+
+
+  <!-- ══ SLIDE 2 — ABOUT ══ -->
+  <section class="slide slide-about" data-index="1">
+    <div class="slide-label">Speaker</div>
+    <h2 class="slide-heading">About Me</h2>
+    <div class="divider"></div>
+
+    <div class="about-grid">
+      <div class="about-avatar-col">
+        <div class="about-avatar">HV</div>
+        <div class="about-name">Hector Ventura</div>
+        <div class="about-location">📍 McKinney, Texas</div>
+        <div class="about-socials">
+          <span class="social-pill">🌐 hectorvent.dev</span>
+          <span class="social-pill">🐙 @hectorvent</span>
+        </div>
+      </div>
+
+      <div class="about-details">
+        <div class="detail-card">
+          <div class="detail-card-title">Current Role</div>
+          <p>
+            <strong>Lead Software Engineer</strong> at Consensus Cloud Solutions<br/>
+            Co-founder at <strong>Alphnology</strong><br/>
+            20+ years in backend systems, distributed services &amp; cloud-native apps
+          </p>
+        </div>
+
+        <div class="detail-card">
+          <div class="detail-card-title">Tech Stack</div>
+          <div class="tag-list">
+            <span class="tag blue">Java</span>
+            <span class="tag blue">Quarkus</span>
+            <span class="tag blue">Vert.x</span>
+            <span class="tag blue">Spring Boot</span>
+            <span class="tag orange">Debezium</span>
+            <span class="tag orange">Kafka</span>
+            <span class="tag orange">PostgreSQL</span>
+            <span class="tag green">Docker</span>
+            <span class="tag green">AWS</span>
+            <span class="tag green">Terraform</span>
+            <span class="tag purple">MongoDB</span>
+            <span class="tag purple">DynamoDB</span>
+          </div>
+        </div>
+
+        <div class="detail-card">
+          <div class="detail-card-title">Open Source &amp; Community</div>
+          <ul class="feature-list">
+            <li>
+              <span class="icon icon-orange">⚡</span>
+              <span>Creator of <strong>Floci</strong> — fast MIT-licensed AWS service emulator</span>
+            </li>
+            <li>
+              <span class="icon icon-blue">🔷</span>
+              <span>Quarkus <strong>1,000 Contributors</strong> · Active Debezium &amp; Eclipse Vert.x contributor</span>
+            </li>
+            <li>
+              <span class="icon icon-green">🎤</span>
+              <span>Active in <strong>Dallas/Fort Worth Postgres</strong> &amp; Java Dominicano</span>
+            </li>
+            <li>
+              <span class="icon icon-purple">🎓</span>
+              <span>Former Linux Admin instructor (2007–2012) · CS @ UASD · Java tutor on Wyzant</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="slide-num-badge">02 / 10</div>
+  </section>
+
+
+  <!-- ══ SLIDE 3 — AGENDA ══ -->
+  <section class="slide slide-agenda" data-index="2">
+    <div class="slide-label">Overview</div>
+    <h2 class="slide-heading">What We'll Cover</h2>
+    <div class="divider"></div>
+
+    <div class="agenda-grid">
+      <div class="agenda-item">
+        <div class="agenda-num">01</div>
+        <div class="agenda-text">
+          <h3>Change Data Capture (CDC)</h3>
+          <p>What it is, why it matters, and how it replaces slow polling approaches</p>
+        </div>
+      </div>
+      <div class="agenda-item">
+        <div class="agenda-num">02</div>
+        <div class="agenda-text">
+          <h3>PostgreSQL WAL &amp; Logical Decoding</h3>
+          <p>How Postgres exposes changes via the Write-Ahead Log using <code>pgoutput</code></p>
+        </div>
+      </div>
+      <div class="agenda-item">
+        <div class="agenda-num">03</div>
+        <div class="agenda-text">
+          <h3>Debezium Deep Dive</h3>
+          <p>Architecture, connectors, and WAL-to-JSON/Avro event conversion</p>
+        </div>
+      </div>
+      <div class="agenda-item">
+        <div class="agenda-num">04</div>
+        <div class="agenda-text">
+          <h3>Setup: Docker &amp; Kafka Connect</h3>
+          <p>Live configuration of Postgres logical replication + Debezium connector</p>
+        </div>
+      </div>
+      <div class="agenda-item">
+        <div class="agenda-num">05</div>
+        <div class="agenda-text">
+          <h3>Schema Evolution</h3>
+          <p>Handling downstream schema changes safely with Schema Registry strategies</p>
+        </div>
+      </div>
+      <div class="agenda-item">
+        <div class="agenda-num">06</div>
+        <div class="agenda-text">
+          <h3>Real-World Use Cases</h3>
+          <p>Cache invalidation, search indexing, microservices sync, audit logging</p>
+        </div>
+      </div>
+    </div>
+    <div class="slide-num-badge">03 / 10</div>
+  </section>
+
+
+  <!-- ══ SLIDE 4 — CDC ══ -->
+  <section class="slide slide-cdc" data-index="3">
+    <div class="slide-label">Foundations</div>
+    <h2 class="slide-heading">Change Data Capture</h2>
+    <div class="divider"></div>
+
+    <div class="two-col">
+      <div>
+        <p class="big-quote">
+          "A set of software design patterns used to determine and track data changes to enable downstream action."
+        </p>
+        <ul class="feature-list">
+          <li><span class="icon icon-green">✓</span><span><strong>Sub-second latency</strong> — no polling delays, reads the transaction log</span></li>
+          <li><span class="icon icon-green">✓</span><span><strong>No schema changes</strong> — no <code>updated_at</code> columns required</span></li>
+          <li><span class="icon icon-green">✓</span><span><strong>Lossless</strong> — captures all operations, even during downtime</span></li>
+          <li><span class="icon icon-blue">→</span><span>Enables event-driven architectures at the data layer</span></li>
+          <li><span class="icon icon-orange">✗</span><span><strong>Polling misses</strong> fast insert+delete within the same interval</span></li>
+        </ul>
+      </div>
+
+      <div class="ops-card">
+        <h3>Captured Operations</h3>
+        <div class="op-row">
+          <span class="op-badge op-insert">INSERT</span>
+          <span class="op-desc">New row added → full <em>after</em> state</span>
+        </div>
+        <div class="op-row">
+          <span class="op-badge op-update">UPDATE</span>
+          <span class="op-desc">Row changed → <em>before</em> + <em>after</em> state</span>
+        </div>
+        <div class="op-row">
+          <span class="op-badge op-delete">DELETE</span>
+          <span class="op-desc">Row removed → <em>before</em> state (tombstone)</span>
+        </div>
+
+        <div style="margin-top:22px;padding-top:18px;border-top:1px solid var(--border-light)">
+          <h3>Why Not Just Poll?</h3>
+          <ul class="feature-list" style="margin-top:12px">
+            <li><span class="icon icon-orange">✗</span><span>Misses deletes &amp; same-interval round-trips</span></li>
+            <li><span class="icon icon-orange">✗</span><span>High read load on the database at scale</span></li>
+            <li><span class="icon icon-orange">✗</span><span>Requires an <code>updated_at</code> column on every table</span></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="slide-num-badge">04 / 10</div>
+  </section>
+
+
+  <!-- ══ SLIDE 5 — WAL ══ -->
+  <section class="slide slide-wal" data-index="4">
+    <div class="slide-label">PostgreSQL Internals</div>
+    <h2 class="slide-heading">WAL &amp; Logical Decoding</h2>
+    <div class="divider"></div>
+
+    <!-- FLOW 1: Production (Kafka) -->
+    <div class="flow-section">
+      <div class="flow-badge prod"><span class="dot"></span>Production — Kafka Connect</div>
+      <div class="arch-diagram">
+        <div class="arch-box hl-pg">
+          <div class="box-icon">🐘</div>
+          <div class="box-label">PostgreSQL</div>
+          <div class="box-sub">Write-Ahead Log</div>
+        </div>
+        <div class="arch-arrow">
+          <div class="line"></div>
+          <div class="label">pgoutput</div>
+        </div>
+        <div class="arch-box hl-deb">
+          <div class="box-icon">🔄</div>
+          <div class="box-label">Debezium</div>
+          <div class="box-sub">Kafka Connect</div>
+        </div>
+        <div class="arch-arrow">
+          <div class="line"></div>
+          <div class="label">JSON / Avro</div>
+        </div>
+        <div class="arch-box hl-kafka">
+          <div class="box-icon">📨</div>
+          <div class="box-label">Apache Kafka</div>
+          <div class="box-sub">topic per table</div>
+        </div>
+        <div class="arch-arrow">
+          <div class="line"></div>
+          <div class="label">consume</div>
+        </div>
+        <div class="arch-box hl-sink">
+          <div class="box-icon">⚙️</div>
+          <div class="box-label">Consumers</div>
+          <div class="box-sub">any downstream</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FLOW 2: Demo (Embedded Engine) -->
+    <div class="flow-section">
+      <div class="flow-badge demo"><span class="dot"></span>Demo — Embedded Engine (no Kafka)</div>
+      <div class="arch-diagram">
+        <div class="arch-box hl-pg">
+          <div class="box-icon">🐘</div>
+          <div class="box-label">PostgreSQL</div>
+          <div class="box-sub">Write-Ahead Log</div>
+        </div>
+        <div class="arch-arrow">
+          <div class="line"></div>
+          <div class="label">pgoutput</div>
+        </div>
+        <div class="arch-box-compound">
+          <div class="box-icon">📦</div>
+          <div class="box-label">Your Application</div>
+          <div class="box-sub">single process</div>
+          <div class="inner-pills">
+            <span class="inner-pill pill-deb">Debezium Engine</span>
+            <span class="inner-pill pill-app">Consumer Logic</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Config -->
+    <div class="two-col" style="gap:20px;margin-top:4px">
+      <div>
+        <p style="font-size:13px;color:var(--text-muted);margin-bottom:8px">Enable logical replication — <code style="font-family:'JetBrains Mono';color:var(--pg-blue)">postgresql.conf</code></p>
+        <div class="code-block"><span class="cmt"># postgresql.conf</span>
+<span class="kw">wal_level</span>             = <span class="val">logical</span>
+<span class="kw">max_replication_slots</span> = <span class="val">4</span>
+<span class="kw">max_wal_senders</span>       = <span class="val">4</span></div>
+      </div>
+      <div>
+        <p style="font-size:13px;color:var(--text-muted);margin-bottom:8px">Create publication &amp; replication slot</p>
+        <div class="code-block"><span class="cmt">-- Grant replication to the connector user</span>
+<span class="kw">CREATE</span> <span class="fn">PUBLICATION</span> dbz_pub
+  <span class="kw">FOR ALL TABLES</span>;
+
+<span class="kw">SELECT</span> pg_create_logical_replication_slot(
+  <span class="str">'debezium'</span>, <span class="str">'pgoutput'</span>
+);</div>
+      </div>
+    </div>
+    <div class="slide-num-badge">05 / 10</div>
+  </section>
+
+
+  <!-- ══ SLIDE 6 — DEBEZIUM ══ -->
+  <section class="slide slide-debezium" data-index="5">
+    <div class="slide-label">Platform</div>
+    <h2 class="slide-heading">Debezium Overview</h2>
+    <div class="divider"></div>
+
+    <div class="debezium-grid">
+      <div class="deb-card">
+        <div class="deb-icon" style="background:#fdeede">🔓</div>
+        <h3>Open Source</h3>
+        <p>Apache-licensed, built on Kafka Connect. Production-ready with thousands of global deployments.</p>
+      </div>
+      <div class="deb-card">
+        <div class="deb-icon" style="background:#e0eef8">🐘</div>
+        <h3>PostgreSQL Connector</h3>
+        <p>Uses <code style="font-family:'JetBrains Mono';font-size:12px">pgoutput</code> — built-in since Postgres 10, no extra plugins needed.</p>
+      </div>
+      <div class="deb-card">
+        <div class="deb-icon" style="background:#e2f5e5">📸</div>
+        <h3>Snapshot Mode</h3>
+        <p>Initial snapshot of all existing rows, then streams every subsequent change in real time.</p>
+      </div>
+      <div class="deb-card">
+        <div class="deb-icon" style="background:#ede8f8">🗂️</div>
+        <h3>Topic Per Table</h3>
+        <p>Each table maps to its own Kafka topic: <code style="font-family:'JetBrains Mono';font-size:11px">server.schema.table</code></p>
+      </div>
+      <div class="deb-card">
+        <div class="deb-icon" style="background:#e8f5eb">🛡️</div>
+        <h3>At-Least-Once</h3>
+        <p>Replication slots ensure zero event loss. Offsets in Kafka guarantee delivery even after restarts.</p>
+      </div>
+      <div class="deb-card">
+        <div class="deb-icon" style="background:#fde8e8">🔗</div>
+        <h3>Schema Registry</h3>
+        <p>Integrates with Confluent Schema Registry (Avro / JSON Schema) for safe schema evolution.</p>
+      </div>
+    </div>
+    <div class="slide-num-badge">06 / 10</div>
+  </section>
+
+
+  <!-- ══ SLIDE 7 — SETUP ══ -->
+  <section class="slide slide-setup" data-index="6">
+    <div class="slide-label">Hands-On</div>
+    <h2 class="slide-heading">Setup: Docker &amp; Kafka Connect</h2>
+    <div class="divider"></div>
+
+    <div class="setup-grid">
+      <div class="setup-step">
+        <div class="setup-step-header">
+          <div class="step-num">1</div>
+          <span>Start Kafka + Zookeeper</span>
+        </div>
+        <div class="code-block"><span class="cmt"># docker-compose.yml</span>
+<span class="kw">services</span>:
+  <span class="fn">zookeeper</span>:
+    image: confluentinc/cp-zookeeper:<span class="val">7.6</span>
+  <span class="fn">kafka</span>:
+    image: confluentinc/cp-kafka:<span class="val">7.6</span>
+    environment:
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:<span class="val">2181</span>
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:<span class="val">9092</span></div>
+      </div>
+
+      <div class="setup-step">
+        <div class="setup-step-header">
+          <div class="step-num">2</div>
+          <span>Start Debezium Connect</span>
+        </div>
+        <div class="code-block"><span class="fn">connect</span>:
+  image: debezium/connect:<span class="val">2.7</span>
+  environment:
+    BOOTSTRAP_SERVERS: kafka:<span class="val">9092</span>
+    GROUP_ID: <span class="str">"1"</span>
+    CONFIG_STORAGE_TOPIC: <span class="str">connect_configs</span>
+    OFFSET_STORAGE_TOPIC: <span class="str">connect_offsets</span></div>
+      </div>
+
+      <div class="setup-step">
+        <div class="setup-step-header">
+          <div class="step-num">3</div>
+          <span>Register PostgreSQL Connector</span>
+        </div>
+        <div class="code-block"><span class="cmt"># POST /connectors</span>
+{
+  <span class="str">"name"</span>: <span class="str">"pg-connector"</span>,
+  <span class="str">"config"</span>: {
+    <span class="str">"connector.class"</span>:
+      <span class="str">"...postgresql.PostgresConnector"</span>,
+    <span class="str">"database.hostname"</span>: <span class="str">"postgres"</span>,
+    <span class="str">"plugin.name"</span>: <span class="str">"pgoutput"</span>
+  }
+}</div>
+      </div>
+
+      <div class="setup-step">
+        <div class="setup-step-header">
+          <div class="step-num">4</div>
+          <span>Sample Change Event (INSERT)</span>
+        </div>
+        <div class="code-block">{
+  <span class="str">"op"</span>: <span class="str">"c"</span>,
+  <span class="str">"before"</span>: <span class="val">null</span>,
+  <span class="str">"after"</span>: {
+    <span class="str">"id"</span>: <span class="val">42</span>,
+    <span class="str">"email"</span>: <span class="str">"hector@example.com"</span>,
+    <span class="str">"created_at"</span>: <span class="val">1713139200000</span>
+  },
+  <span class="str">"source"</span>: { <span class="str">"table"</span>: <span class="str">"users"</span> }
+}</div>
+      </div>
+    </div>
+    <div class="slide-num-badge">07 / 10</div>
+  </section>
+
+
+  <!-- ══ SLIDE 8 — USE CASES ══ -->
+  <section class="slide slide-usecases" data-index="7">
+    <div class="slide-label">Real World</div>
+    <h2 class="slide-heading">Use Cases</h2>
+    <div class="divider"></div>
+
+    <div class="usecase-grid">
+      <div class="usecase-card">
+        <div class="usecase-icon" style="background:#e0eef8">🗄️</div>
+        <div class="usecase-text">
+          <h3>Cache Invalidation</h3>
+          <p>Automatically expire or refresh Redis / Memcached entries the moment a database row changes — no more stale cache bugs or manual TTL juggling.</p>
+        </div>
+      </div>
+      <div class="usecase-card">
+        <div class="usecase-icon" style="background:#fdeede">🔍</div>
+        <div class="usecase-text">
+          <h3>Search Index Sync</h3>
+          <p>Keep Elasticsearch or OpenSearch perfectly in sync with your Postgres data in real time — no batch re-index jobs needed.</p>
+        </div>
+      </div>
+      <div class="usecase-card">
+        <div class="usecase-icon" style="background:#e2f5e5">🔗</div>
+        <div class="usecase-text">
+          <h3>Microservices Sync</h3>
+          <p>Propagate domain events across service boundaries reliably. Each service consumes only the tables relevant to its bounded context.</p>
+        </div>
+      </div>
+      <div class="usecase-card">
+        <div class="usecase-icon" style="background:#ede8f8">📋</div>
+        <div class="usecase-text">
+          <h3>Audit Logging</h3>
+          <p>Capture a complete, tamper-proof history of every data change — <em>before</em> and <em>after</em> state — without touching any application code.</p>
+        </div>
+      </div>
+    </div>
+    <div class="slide-num-badge">08 / 10</div>
+  </section>
+
+
+  <!-- ══ SLIDE 9 — DEMO ══ -->
+  <section class="slide slide-demo" data-index="8">
+    <div class="slide-label">Hands-On</div>
+    <h2 class="slide-heading">Live Demo — Real-Time Fraud Detection</h2>
+    <div class="divider"></div>
+
+    <div class="demo-grid">
+
+      <!-- LEFT: Setup summary -->
+      <div>
+        <div class="demo-section-title">Architecture (Embedded — No Kafka)</div>
+        <div class="demo-flow">
+          <div class="arch-box hl-pg">
+            <div class="box-icon">🐘</div>
+            <div class="box-label">PostgreSQL</div>
+            <div class="box-sub">WAL · pgoutput</div>
+          </div>
+          <div class="arch-arrow"><div class="line"></div><div class="label"> CDC events</div></div>
+          <div class="arch-box-compound" style="flex:1">
+            <div class="box-icon">📦</div>
+            <div class="box-label">Java App</div>
+            <div class="box-sub">single process</div>
+            <div class="inner-pills">
+              <span class="inner-pill pill-deb">Debezium Engine</span>
+              <span class="inner-pill pill-app">Fraud Detector</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="demo-box">
+          <div class="demo-section-title">Transfer Event — captured fields</div>
+          <div class="table-fields">
+            <div class="field-pill">📅 transferred_at <span class="ftype">TIMESTAMPTZ</span></div>
+            <div class="field-pill">📍 location <span class="ftype">VARCHAR</span></div>
+            <div class="field-pill">🌐 latitude / longitude <span class="ftype">DOUBLE</span></div>
+            <div class="field-pill">💰 amount <span class="ftype">NUMERIC(15,2)</span></div>
+            <div class="field-pill">🏦 account_id <span class="ftype">VARCHAR</span></div>
+            <div class="field-pill">💱 currency <span class="ftype">CHAR(3)</span></div>
+          </div>
+        </div>
+
+        <div class="demo-section-title" style="margin-top:auto;padding-top:14px">Run the demo</div>
+        <div class="cmd-block"><span class="prompt">$</span> <span class="cmd">docker compose up -d</span>          <span class="cmt"># start postgres</span>
+<span class="prompt">$</span> <span class="cmd">mvn exec:java</span>                 <span class="cmt"># start CDC engine + simulator</span></div>
+      </div>
+
+      <!-- RIGHT: Fraud scenarios -->
+      <div>
+        <div class="demo-section-title">Fraud Scenarios — what you'll see</div>
+        <div class="scenario-list">
+
+          <div class="scenario-card">
+            <div class="s-icon" style="background:#fdeede">💸</div>
+            <div class="s-body">
+              <h4>Scenario A — High Amount</h4>
+              <p>ACC-FRAUD-001 sends <strong>$50,000</strong> from New York</p>
+              <div class="s-badges">
+                <span class="s-badge amount">HIGH AMOUNT</span>
+                <span class="s-badge timing">t + 5s</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="scenario-card">
+            <div class="s-icon" style="background:#fde8e8">✈️</div>
+            <div class="s-body">
+              <h4>Scenario A' — Impossible Travel</h4>
+              <p>Same account appears in <strong>Tokyo</strong> just 5 seconds later<br/>
+              <em>10,838 km at ~7,800,000 km/h</em></p>
+              <div class="s-badges">
+                <span class="s-badge travel">IMPOSSIBLE TRAVEL</span>
+                <span class="s-badge timing">t + 10s</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="scenario-card">
+            <div class="s-icon" style="background:#fde8e8">🌍</div>
+            <div class="s-body">
+              <h4>Scenario B — London → Sydney in 3s</h4>
+              <p>ACC-FRAUD-002 in London, then Sydney 3 seconds later<br/>
+              <em>16,993 km — physically impossible</em></p>
+              <div class="s-badges">
+                <span class="s-badge travel">IMPOSSIBLE TRAVEL</span>
+                <span class="s-badge timing">t + 22s</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="scenario-card">
+            <div class="s-icon" style="background:#fff3cd">🔥</div>
+            <div class="s-body">
+              <h4>Scenario C — Double Hit</h4>
+              <p>ACC-FRAUD-003 sends <strong>$12,000</strong> from Miami,<br/>
+              then appears in Dubai 5 seconds later</p>
+              <div class="s-badges">
+                <span class="s-badge amount">HIGH AMOUNT</span>
+                <span class="s-badge travel">IMPOSSIBLE TRAVEL</span>
+                <span class="s-badge timing">t + 37s</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+    <div class="slide-num-badge">09 / 10</div>
+  </section>
+
+
+  <!-- ══ SLIDE 10 — Q&A ══ -->
+  <section class="slide slide-qa" data-index="9">
+    <div class="grid-bg"></div>
+    <div class="qa-content">
+      <div class="qa-big">Q &amp; A</div>
+      <p class="qa-sub">Thanks for joining — let's talk Postgres, Debezium &amp; event-driven data!</p>
+
+      <div class="qa-links">
+        <a class="qa-link" href="https://hectorvent.dev" target="_blank">🌐 hectorvent.dev</a>
+        <a class="qa-link" href="https://debezium.io/documentation/reference/stable/connectors/postgresql.html" target="_blank">📖 Debezium Docs</a>
+        <a class="qa-link" href="https://www.postgresql.org/docs/current/logicaldecoding.html" target="_blank">🐘 PG Logical Decoding</a>
+        <a class="qa-link" href="https://github.com/hectorvent" target="_blank">🐙 github.com/hectorvent</a>
+      </div>
+
+      <div style="margin-top:44px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+        <span class="tag blue">PostgreSQL</span>
+        <span class="tag orange">Debezium</span>
+        <span class="tag orange">Kafka</span>
+        <span class="tag green">CDC</span>
+        <span class="tag purple">Event-Driven</span>
+        <span class="tag">WAL</span>
+        <span class="tag green">pgoutput</span>
+      </div>
+    </div>
+    <div class="slide-num-badge">10 / 10</div>
+  </section>
+
+</div><!-- /deck -->
+
+
+<!-- NAV BAR -->
+<div class="nav">
+  <button id="prevBtn" onclick="navigate(-1)" disabled title="Previous (←)">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="15 18 9 12 15 6"/>
+    </svg>
+  </button>
+  <span class="slide-counter" id="counter">1 / 9</span>
+  <button id="nextBtn" onclick="navigate(1)" title="Next (→)">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="9 18 15 12 9 6"/>
+    </svg>
+  </button>
+</div>
+
+
+<script>
+  const slides  = Array.from(document.querySelectorAll('.slide'));
+  const total   = slides.length;
+  let animating = false;
+
+  // Read initial slide from ?slide= query param (1-based)
+  const params  = new URLSearchParams(location.search);
+  const initRaw = parseInt(params.get('slide'), 10);
+  const initIdx = (!isNaN(initRaw) && initRaw >= 1 && initRaw <= total) ? initRaw - 1 : 0;
+
+  // Activate the initial slide without animation
+  slides[0].classList.remove('active');
+  slides[initIdx].classList.add('active');
+  let current = initIdx;
+
+  function navigate(dir) {
+    if (animating) return;
+    const next = current + dir;
+    if (next < 0 || next >= total) return;
+    goTo(next, dir);
+  }
+
+  function goTo(index, hint) {
+    if (animating || index === current || index < 0 || index >= total) return;
+    animating = true;
+
+    const dir = hint !== undefined ? hint : (index > current ? 1 : -1);
+
+    const leaving  = slides[current];
+    const entering = slides[index];
+
+    // Position the entering slide off-screen (no transition yet)
+    entering.classList.add(dir > 0 ? 'enter-right' : 'enter-left');
+    entering.style.opacity = '1';
+
+    // Force reflow so the starting position is painted before we add transitions
+    entering.getBoundingClientRect();
+
+    // Now animate both slides simultaneously
+    leaving.classList.add('animating');
+    entering.classList.add('animating', 'active');
+    entering.classList.remove('enter-right', 'enter-left');
+
+    leaving.style.transform = dir > 0 ? 'translateX(-100%)' : 'translateX(100%)';
+    leaving.style.opacity   = '0';
+
+    current = index;
+    updateUI();
+    history.replaceState(null, '', `?slide=${current + 1}`);
+
+    setTimeout(() => {
+      leaving.classList.remove('active', 'animating');
+      leaving.style.transform = '';
+      leaving.style.opacity   = '';
+      entering.classList.remove('animating');
+      animating = false;
+    }, 420);
+  }
+
+  function updateUI() {
+    document.getElementById('counter').textContent = `${current + 1} / ${total}`;
+    document.getElementById('prevBtn').disabled    = current === 0;
+    document.getElementById('nextBtn').disabled    = current === total - 1;
+    document.getElementById('progressBar').style.width = `${((current + 1) / total) * 100}%`;
+  }
+
+  // Keyboard
+  document.addEventListener('keydown', e => {
+    if (['ArrowRight', 'ArrowDown', ' '].includes(e.key)) { e.preventDefault(); navigate(1); }
+    if (['ArrowLeft',  'ArrowUp'].includes(e.key))         { e.preventDefault(); navigate(-1); }
+    if (e.key === 'Home') goTo(0, -1);
+    if (e.key === 'End')  goTo(total - 1, 1);
+    const n = parseInt(e.key);
+    if (n >= 1 && n <= total) goTo(n - 1);
+  });
+
+  // Touch / swipe
+  let touchStartX = 0;
+  document.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; }, { passive: true });
+  document.addEventListener('touchend',   e => {
+    const dx = e.changedTouches[0].clientX - touchStartX;
+    if (Math.abs(dx) > 50) navigate(dx < 0 ? 1 : -1);
+  });
+
+  updateUI();
+</script>
+</body>
+</html>
