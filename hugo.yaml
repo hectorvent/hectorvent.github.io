@@ -78,6 +78,10 @@ menu:
       name: Blog
       url: /posts/
       weight: 20
+    - identifier: presentations
+      name: Presentations
+      url: /presentations/
+      weight: 25
     - identifier: projects
       name: Projects
       url: /projects/

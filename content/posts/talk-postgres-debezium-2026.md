@@ -80,7 +80,9 @@ In the upcoming presentation at Postgres MetroPlex Dallas, we will dive deep int
 3.  **Handling Schema Evolutions** without breaking downstream consumers.
 4.  **Real-world Use Cases:** Cache invalidation, building search indexes, and microservices synchronization.
 
-Stay tuned for more details and the full presentation slides after the event!
+### Slides & Demo
+The full interactive presentation slides are now available:
+[**🚀 View Presentation: Real-Time Data Streaming with Postgres & Debezium**](/presentations/2026-debezium/)
 
 ---
 

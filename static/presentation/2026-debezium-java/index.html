@@ -1,0 +1,1055 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Don't Ask, Don't Poll: Just React to Your Database</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap');
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --java-orange:  #ed8b00;
+      --quarkus-blue: #4695eb;
+      --debezium-red: #ff004a;
+      --pg-blue:      #336791;
+      
+      --pg-light:     #4a9fd4;
+      --pg-dark:      #1d4e7a;
+      --kafka-orange: #d4621a;
+      --green:        #1e7e34;
+      --green-light:  #28a745;
+      --purple:       #6f42c1;
+      --red:          #b02020;
+
+      --bg:           #f4f6f9;
+      --surface:      #ffffff;
+      --surface2:     #f0f3f7;
+      --border:       #d0d7de;
+      --border-light: #e8ecf0;
+
+      --text:         #0d1117;
+      --text-sub:     #3d4a5c;
+      --text-muted:   #6b7a8e;
+
+      --accent:       var(--quarkus-blue);
+    }
+
+    html, body {
+      width: 100%; height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      overflow: hidden;
+    }
+
+    /* ─── DECK ─── */
+    .deck { width: 100vw; height: 100vh; position: relative; }
+
+    .slide {
+      position: absolute; inset: 0;
+      display: flex; flex-direction: column;
+      opacity: 0; pointer-events: none;
+      overflow: hidden;
+      will-change: transform, opacity;
+      padding: 80px 100px;
+    }
+
+    .slide-title { padding: 0; }
+
+    /* direction classes set before transition starts */
+    .slide.enter-right  { transform: translateX(100%); }
+    .slide.enter-left   { transform: translateX(-100%); }
+    .slide.exit-right   { transform: translateX(100%); opacity: 1; }
+    .slide.exit-left    { transform: translateX(-100%); opacity: 1; }
+
+    .slide.active {
+      opacity: 1; pointer-events: all;
+      transform: translateX(0);
+      transition: transform 0.4s cubic-bezier(0.4,0,0.2,1),
+                  opacity  0.4s cubic-bezier(0.4,0,0.2,1);
+    }
+
+    .slide.animating {
+      transition: transform 0.4s cubic-bezier(0.4,0,0.2,1),
+                  opacity  0.4s cubic-bezier(0.4,0,0.2,1);
+    }
+
+    /* ─── PROGRESS ─── */
+    .progress-bar {
+      position: fixed; top: 0; left: 0; height: 4px; z-index: 200;
+      background: linear-gradient(90deg, var(--java-orange), var(--quarkus-blue), var(--debezium-red), var(--pg-blue));
+      transition: width 0.4s ease;
+    }
+
+    /* ─── NAV ─── */
+    .nav {
+      position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+      display: flex; align-items: center; gap: 12px; z-index: 100;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 50px;
+      padding: 8px 18px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.12);
+    }
+
+    .nav button {
+      background: none; border: none; cursor: pointer;
+      color: var(--text); width: 36px; height: 36px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.15s;
+      font-size: 0;
+    }
+    .nav button:hover:not(:disabled) { background: var(--surface2); }
+    .nav button:disabled { color: var(--border); cursor: not-allowed; }
+
+    .slide-counter {
+      font-size: 14px; font-weight: 600; color: var(--text-muted);
+      min-width: 56px; text-align: center;
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* ─── SHARED ELEMENTS ─── */
+    .slide-num-badge {
+      position: absolute; top: 28px; right: 36px;
+      font-size: 13px; color: var(--text-muted);
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 600;
+    }
+
+    .slide-label {
+      font-size: 14px; font-weight: 700;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--quarkus-blue); margin-bottom: 8px;
+    }
+
+    .slide-heading {
+      font-size: clamp(2rem, 3.5vw, 3rem);
+      font-weight: 800; letter-spacing: -0.025em;
+      color: var(--text); margin-bottom: 10px; line-height: 1.1;
+    }
+
+    .divider {
+      width: 52px; height: 4px; border-radius: 2px;
+      background: linear-gradient(90deg, var(--java-orange), var(--quarkus-blue));
+      margin-bottom: 20px;
+    }
+
+    .tag {
+      display: inline-block;
+      border-radius: 6px; padding: 6px 14px;
+      font-size: 14px; font-weight: 500;
+      font-family: 'JetBrains Mono', monospace;
+      border: 1px solid var(--border);
+      background: var(--surface2);
+      color: var(--text-sub);
+    }
+    .tag.blue   { background: #e8f1f9; border-color: #b0cfe8; color: var(--pg-dark); }
+    .tag.orange { background: #fdf0e8; border-color: #f0c090; color: var(--kafka-orange); }
+    .tag.green  { background: #e8f5eb; border-color: #a8d5b0; color: var(--green); }
+    .tag.purple { background: #f2eefa; border-color: #c8b0e8; color: var(--purple); }
+
+    .feature-list { list-style: none; display: flex; flex-direction: column; gap: 16px; }
+    .feature-list li { display: flex; align-items: flex-start; gap: 12px; font-size: 16px; line-height: 1.55; color: var(--text-sub); }
+
+    .icon {
+      width: 26px; height: 26px; border-radius: 7px; flex-shrink: 0; margin-top: 1px;
+      display: flex; align-items: center; justify-content: center; font-size: 13px;
+    }
+    .icon-green  { background: #e2f5e5; color: var(--green-light); }
+    .icon-orange { background: #fdeede; color: var(--kafka-orange); }
+    .icon-blue   { background: #e0eef8; color: var(--pg-blue); }
+    .icon-purple { background: #ede8f8; color: var(--purple); }
+
+    .code-block {
+      background: #1e2533;
+      color: #cdd9e5;
+      border-radius: 10px;
+      padding: 20px 24px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 15px; line-height: 1.8;
+      overflow-x: auto;
+      white-space: pre;
+    }
+    .code-block .kw  { color: #e06c75; }
+    .code-block .str { color: #98c379; }
+    .code-block .val { color: #61afef; }
+    .code-block .fn  { color: #e5c07b; }
+    .code-block .cmt { color: #5c6370; font-style: italic; }
+
+    /* ══════════════════════════════════════
+       SLIDE 1 — TITLE
+    ══════════════════════════════════════ */
+    .slide-title {
+      background: linear-gradient(150deg, #e8f2fb 0%, #f8f9fa 45%, #fef2e8 100%);
+      justify-content: center; align-items: center; text-align: center;
+    }
+
+    .slide-title .grid-bg {
+      position: absolute; inset: 0; pointer-events: none;
+      background-image:
+        linear-gradient(var(--border-light) 1px, transparent 1px),
+        linear-gradient(90deg, var(--border-light) 1px, transparent 1px);
+      background-size: 64px 64px;
+      mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 20%, transparent 100%);
+    }
+
+    .slide-title .content { position: relative; z-index: 1; max-width: 960px; padding: 40px; }
+
+    .event-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(70,149,235,0.1); border: 1px solid rgba(70,149,235,0.3);
+      border-radius: 24px; padding: 8px 18px;
+      font-size: 14px; font-weight: 600; color: var(--quarkus-blue);
+      margin-bottom: 36px; letter-spacing: 0.02em;
+    }
+
+    .title-main {
+      font-size: clamp(2.6rem, 5.5vw, 4.6rem);
+      font-weight: 900; line-height: 1.05; letter-spacing: -0.03em;
+      margin-bottom: 28px; color: var(--text);
+    }
+    .title-main .hl-java { color: var(--java-orange); }
+    .title-main .hl-q    { color: var(--quarkus-blue); }
+    .title-main .hl-dbz  { color: var(--debezium-red); }
+
+    .title-sub {
+      font-size: 1.2rem; color: var(--text-muted); font-weight: 400;
+      margin-bottom: 52px; line-height: 1.65; max-width: 640px; margin-left: auto; margin-right: auto;
+    }
+
+    .speaker-chip {
+      display: inline-flex; align-items: center; gap: 14px;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 50px; padding: 10px 22px 10px 10px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+    }
+
+    .avatar {
+      width: 50px; height: 50px; border-radius: 50%; flex-shrink: 0;
+      background: linear-gradient(135deg, var(--java-orange), var(--quarkus-blue));
+      display: flex; align-items: center; justify-content: center;
+      color: white; font-weight: 800; font-size: 18px;
+    }
+
+    .speaker-name { font-weight: 700; color: var(--text); font-size: 16px; text-align: left; }
+    .speaker-role { font-size: 13px; color: var(--text-muted); text-align: left; }
+
+    .title-date { margin-top: 36px; font-size: 13px; color: var(--text-muted); letter-spacing: 0.05em; text-transform: uppercase; }
+
+    /* ══════════════════════════════════════
+       SLIDE 2 — ABOUT
+    ══════════════════════════════════════ */
+    .about-grid {
+      display: grid; grid-template-columns: 280px 1fr; gap: 40px;
+      flex: 1; padding: 0 40px 40px;
+    }
+    .about-avatar-col { text-align: center; display: flex; flex-direction: column; align-items: center; }
+    .about-avatar {
+      width: 160px; height: 160px; border-radius: 40px;
+      background: linear-gradient(135deg, var(--java-orange), var(--quarkus-blue));
+      margin-bottom: 24px; display: flex; align-items: center; justify-content: center;
+      color: white; font-weight: 900; font-size: 64px; box-shadow: 0 10px 30px rgba(70,149,235,0.25);
+    }
+    .about-name { font-size: 24px; font-weight: 800; color: var(--text); margin-bottom: 4px; }
+    .about-location { font-size: 15px; color: var(--text-muted); margin-bottom: 20px; font-weight: 500; }
+    .about-socials { display: flex; flex-direction: column; gap: 10px; width: 100%; }
+    .social-pill {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 10px; padding: 10px; font-size: 14px; font-weight: 600; color: var(--text-sub);
+    }
+
+    .about-details { display: flex; flex-direction: column; gap: 24px; }
+    .detail-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 20px 24px; }
+    .detail-card-title { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 12px; }
+    .detail-card p { font-size: 15px; line-height: 1.6; color: var(--text-sub); }
+    .tag-list { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+
+    /* ══════════════════════════════════════
+       SLIDE 3 — AGENDA
+    ══════════════════════════════════════ */
+    .agenda-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 20px;
+      padding: 0 40px 40px; flex: 1;
+    }
+    .agenda-item {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 16px; padding: 24px; display: flex; gap: 20px; align-items: center;
+      transition: transform 0.2s, border-color 0.2s;
+    }
+    .agenda-item:hover { transform: translateY(-3px); border-color: var(--quarkus-blue); }
+    .agenda-num {
+      width: 48px; height: 48px; border-radius: 12px; background: var(--surface2);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; font-weight: 800; color: var(--quarkus-blue); flex-shrink: 0;
+    }
+    .agenda-text h3 { font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+    .agenda-text p { font-size: 14px; color: var(--text-muted); line-height: 1.5; }
+
+    /* ══════════════════════════════════════
+       SLIDE 4 — REACTION
+    ══════════════════════════════════════ */
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; padding: 0 40px 40px; flex: 1; align-items: start; }
+    .big-quote {
+      font-size: 1.8rem; font-weight: 700; line-height: 1.35; letter-spacing: -0.02em;
+      color: var(--text); margin-bottom: 24px; position: relative;
+    }
+    .ops-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 16px; padding: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+    .op-row { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+    .op-badge { font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 12px; padding: 4px 8px; border-radius: 4px; color: white; width: 74px; text-align: center; }
+    .op-insert { background: var(--green); }
+    .op-update { background: var(--pg-blue); }
+    .op-delete { background: var(--red); }
+    .op-desc { font-size: 14px; color: var(--text-sub); }
+
+    /* ══════════════════════════════════════
+       SLIDE 5 — ARCHITECTURE
+    ══════════════════════════════════════ */
+    .flow-section { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 24px; margin: 0 40px 20px; }
+    .flow-badge { display: inline-flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; padding: 4px 12px; border-radius: 50px; margin-bottom: 20px; }
+    .flow-badge.prod { background: #fee2e2; color: #991b1b; }
+    .flow-badge.demo { background: #dcfce7; color: #166534; }
+    .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+    .arch-diagram { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+    .arch-box { width: 160px; height: 100px; border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 10px; border: 2px solid transparent; }
+    .arch-box-compound { flex: 1; height: 110px; border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 10px; border: 2px dashed var(--border); background: var(--surface2); }
+    .hl-pg { background: #e0eef8; border-color: #336791; color: #336791; }
+    .hl-deb { background: #fdeede; border-color: var(--java-orange); color: var(--java-orange); }
+    .hl-q { background: #e0f2fe; border-color: var(--quarkus-blue); color: var(--quarkus-blue); }
+    .hl-java { background: #fff7ed; border-color: var(--java-orange); color: var(--java-orange); }
+    .hl-kafka { background: #fef2f2; border-color: #dc2626; color: #dc2626; }
+    .hl-sink { background: #f3f4f6; border-color: #374151; color: #374151; }
+
+    .box-icon { font-size: 24px; margin-bottom: 4px; }
+    .box-label { font-size: 14px; font-weight: 700; }
+    .box-sub { font-size: 11px; opacity: 0.8; font-weight: 500; }
+
+    .arch-arrow { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+    .arch-arrow .line { height: 2px; width: 100%; background: var(--border); position: relative; }
+    .arch-arrow .line::after { content: ''; position: absolute; right: -2px; top: -4px; border-left: 6px solid var(--border); border-top: 5px solid transparent; border-bottom: 5px solid transparent; }
+    .arch-arrow .label { font-size: 11px; font-weight: 600; color: var(--text-muted); }
+
+    .inner-pills { display: flex; gap: 6px; margin-top: 8px; }
+    .inner-pill { font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 4px; text-transform: uppercase; }
+    .pill-deb { background: var(--debezium-red); color: white; }
+    .pill-app { background: var(--quarkus-blue); color: white; }
+
+    /* ══════════════════════════════════════
+       SLIDE 6 — DEBEZIUM
+    ══════════════════════════════════════ */
+    .debezium-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; padding: 0 40px 40px; flex: 1; }
+    .deb-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 24px; display: flex; flex-direction: column; gap: 12px; }
+    .deb-icon { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+    .deb-card h3 { font-size: 17px; font-weight: 700; color: var(--text); }
+    .deb-card p { font-size: 13.5px; color: var(--text-sub); line-height: 1.55; }
+
+    /* ══════════════════════════════════════
+       SLIDE 7 — QUARKUS
+    ══════════════════════════════════════ */
+    .setup-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; padding: 0 40px 40px; flex: 1; }
+    .setup-step { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 14px; }
+    .setup-step-header { display: flex; align-items: center; gap: 12px; font-size: 15px; font-weight: 700; color: var(--text); }
+    .step-num { width: 28px; height: 28px; border-radius: 50%; background: var(--quarkus-blue); color: white; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
+
+    /* ══════════════════════════════════════
+       SLIDE 8 — USE CASES
+    ══════════════════════════════════════ */
+    .usecase-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; padding: 0 40px 40px; flex: 1; }
+    .usecase-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 24px; display: flex; gap: 20px; align-items: start; }
+    .usecase-icon { width: 52px; height: 52px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 24px; flex-shrink: 0; }
+    .usecase-text h3 { font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 8px; }
+    .usecase-text p { font-size: 14.5px; color: var(--text-sub); line-height: 1.6; }
+
+    /* ══════════════════════════════════════
+       SLIDE 9 — DEMO
+    ══════════════════════════════════════ */
+    .demo-grid { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 30px; padding: 0 40px 40px; flex: 1; }
+    .demo-box { background: var(--surface2); border: 1px solid var(--border); border-radius: 16px; padding: 20px; margin-top: 20px; }
+    .demo-section-title { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 12px; }
+    .demo-flow { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
+    .table-fields { display: flex; flex-wrap: wrap; gap: 8px; }
+    .field-pill { font-size: 12px; font-weight: 600; padding: 5px 10px; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; color: var(--text-sub); }
+    .field-pill .ftype { opacity: 0.5; font-size: 10px; font-family: 'JetBrains Mono', monospace; }
+    .cmd-block { background: #0d1117; border-radius: 8px; padding: 14px 18px; font-family: 'JetBrains Mono', monospace; font-size: 14px; color: #cdd9e5; margin-top: 12px; line-height: 1.6; }
+    .cmd-block .prompt { color: #57ab5a; margin-right: 8px; }
+    .cmd-block .cmd { color: #f2cc60; }
+    .scenario-list { display: flex; flex-direction: column; justify-content: space-between; flex: 1; gap: 0; }
+    .scenario-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px 20px; display: flex; gap: 16px; align-items: center; flex: 1; }
+    .scenario-card + .scenario-card { margin-top: 10px; }
+    .scenario-card .s-icon { width: 46px; height: 46px; border-radius: 12px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 24px; }
+    .scenario-card .s-body { flex: 1; min-width: 0; }
+    .scenario-card .s-body h4 { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+    .scenario-card .s-body p  { font-size: 13.5px; color: var(--text-muted); line-height: 1.45; }
+    .scenario-card .s-body .s-badges { display: flex; gap: 7px; flex-wrap: wrap; margin-top: 6px; }
+    .s-badge { font-size: 13px; font-weight: 600; padding: 3px 10px; border-radius: 5px; font-family: 'JetBrains Mono', monospace; }
+    .s-badge.amount  { background: #fdeede; color: var(--kafka-orange); border: 1px solid #f0c090; }
+    .s-badge.travel  { background: #fde8e8; color: var(--red);          border: 1px solid #e8a0a0; }
+    .s-badge.normal  { background: #e2f5e5; color: var(--green);        border: 1px solid #a8d5b0; }
+    .s-badge.timing  { background: var(--surface2); color: var(--text-muted); border: 1px solid var(--border); }
+
+    /* ══════════════════════════════════════
+       SLIDE 10 — Q&A
+    ══════════════════════════════════════ */
+    .slide-qa { background: linear-gradient(150deg, #e8f2fb 0%, #f8f9fa 45%, #fef2e8 100%); justify-content: center; align-items: center; text-align: center; }
+    .slide-qa .grid-bg { position: absolute; inset: 0; pointer-events: none; background-image: linear-gradient(var(--border-light) 1px, transparent 1px), linear-gradient(90deg, var(--border-light) 1px, transparent 1px); background-size: 64px 64px; mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 20%, transparent 100%); }
+    .qa-content { position: relative; z-index: 1; max-width: 680px; padding: 40px; }
+    .qa-big { font-size: clamp(4rem, 9vw, 7rem); font-weight: 900; letter-spacing: -0.04em; line-height: 1; margin-bottom: 16px; background: linear-gradient(135deg, var(--java-orange), var(--quarkus-blue)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .qa-sub { font-size: 1.15rem; color: var(--text-sub); margin-bottom: 40px; line-height: 1.6; }
+    .qa-links { display: flex; flex-wrap: wrap; gap: 14px; justify-content: center; }
+    .qa-link { display: flex; align-items: center; gap: 10px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 13px 22px; font-size: 15px; color: var(--text-sub); text-decoration: none; font-weight: 500; box-shadow: 0 2px 8px rgba(0,0,0,0.06); transition: box-shadow 0.15s, border-color 0.15s; }
+    .qa-link:hover { border-color: var(--quarkus-blue); box-shadow: 0 4px 16px rgba(70,149,235,0.15); }
+
+  </style>
+</head>
+<body>
+
+<div class="progress-bar" id="progressBar" style="width:10%"></div>
+
+<div class="deck" id="deck">
+
+  <!-- ══ SLIDE 1 — TITLE ══ -->
+  <section class="slide slide-title active" data-index="0">
+    <div class="grid-bg"></div>
+    <div class="content">
+      <div class="event-badge">
+        📅&nbsp; Java Dominicano · Community Talk 2026
+      </div>
+
+      <h1 class="title-main">
+        Don't Ask, Don't Poll:<br/>
+        Just <span class="hl-q">React</span> to Your <span class="hl-java">Database</span><br/>
+        with <span class="hl-dbz">Debezium</span>
+      </h1>
+
+      <p class="title-sub">
+        Capture every data change in real-time straight from the WAL —<br/>
+        built with Java, Quarkus, and reactive patterns.
+      </p>
+
+      <div class="speaker-chip">
+        <div class="avatar">HV</div>
+        <div>
+          <div class="speaker-name">Hector Ventura</div>
+          <div class="speaker-role">Lead Software Engineer · Debezium & Quarkus Contributor</div>
+        </div>
+      </div>
+
+      <div class="title-date">hectorvent.dev</div>
+    </div>
+    <div class="slide-num-badge">01 / 10</div>
+  </section>
+
+
+  <!-- ══ SLIDE 2 — ABOUT ══ -->
+  <section class="slide slide-about" data-index="1">
+    <div class="slide-label">Speaker</div>
+    <h2 class="slide-heading">About Me</h2>
+    <div class="divider"></div>
+
+    <div class="about-grid">
+      <div class="about-avatar-col">
+        <div class="about-avatar">HV</div>
+        <div class="about-name">Hector Ventura</div>
+        <div class="about-location">📍 McKinney, Texas</div>
+        <div class="about-socials">
+          <span class="social-pill">🌐 hectorvent.dev</span>
+          <span class="social-pill">🐙 @hectorvent</span>
+        </div>
+      </div>
+
+      <div class="about-details">
+        <div class="detail-card">
+          <div class="detail-card-title">Current Role</div>
+          <p>
+            <strong>Lead Software Engineer</strong> at Consensus Cloud Solutions<br/>
+            Co-founder at <strong>Alphnology</strong><br/>
+            20+ years in backend systems, distributed services &amp; cloud-native apps
+          </p>
+        </div>
+
+        <div class="detail-card">
+          <div class="detail-card-title">Tech Stack</div>
+          <div class="tag-list">
+            <span class="tag blue">Java 17+</span>
+            <span class="tag blue">Quarkus</span>
+            <span class="tag blue">Eclipse Vert.x</span>
+            <span class="tag orange">Debezium</span>
+            <span class="tag orange">Kafka</span>
+            <span class="tag orange">PostgreSQL</span>
+            <span class="tag green">Kubernetes</span>
+            <span class="tag green">AWS</span>
+            <span class="tag purple">Hibernate / Panache</span>
+          </div>
+        </div>
+
+        <div class="detail-card">
+          <div class="detail-card-title">Open Source &amp; Community</div>
+          <ul class="feature-list">
+            <li>
+              <span class="icon icon-orange">☕</span>
+              <span>Active in <strong>Java Dominicano</strong> — growing the local ecosystem</span>
+            </li>
+            <li>
+              <span class="icon icon-blue">🚀</span>
+              <span>Quarkus <strong>1,000 Contributors</strong> · Active Debezium &amp; Eclipse Vert.x contributor</span>
+            </li>
+            <li>
+              <span class="icon icon-green">🎤</span>
+              <span>Regular speaker at Java &amp; Data conferences</span>
+            </li>
+            <li>
+              <span class="icon icon-purple">🎓</span>
+              <span>Teaching Linux &amp; Java since 2007 · Dedicated mentor</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="slide-num-badge">02 / 10</div>
+  </section>
+
+
+  <!-- ══ SLIDE 3 — AGENDA ══ -->
+  <section class="slide slide-agenda" data-index="2">
+    <div class="slide-label">Overview</div>
+    <h2 class="slide-heading">What We'll Cover</h2>
+    <div class="divider"></div>
+
+    <div class="agenda-grid">
+      <div class="agenda-item">
+        <div class="agenda-num">01</div>
+        <div class="agenda-text">
+          <h3>The Death of Polling</h3>
+          <p>Why scheduled queries are slow, resource-heavy, and miss critical events</p>
+        </div>
+      </div>
+      <div class="agenda-item">
+        <div class="agenda-num">02</div>
+        <div class="agenda-text">
+          <h3>Change Data Capture (CDC)</h3>
+          <p>Capturing row-level changes (Insert/Update/Delete) without database triggers</p>
+        </div>
+      </div>
+      <div class="agenda-item">
+        <div class="agenda-num">03</div>
+        <div class="agenda-text">
+          <h3>Debezium for Java Devs</h3>
+          <p>Running Debezium as a library (Embedded) vs. Distributed (Kafka Connect)</p>
+        </div>
+      </div>
+      <div class="agenda-item">
+        <div class="agenda-num">04</div>
+        <div class="agenda-text">
+          <h3>The Quarkus Reactive Stack</h3>
+          <p>Building sub-second reactive pipelines from DB WAL to Frontend with SSE</p>
+        </div>
+      </div>
+      <div class="agenda-item">
+        <div class="agenda-num">05</div>
+        <div class="agenda-text">
+          <h3>Event-Driven Java Patterns</h3>
+          <p>Cache invalidation, Audit logs, and Microservices data synchronization</p>
+        </div>
+      </div>
+      <div class="agenda-item">
+        <div class="agenda-num">06</div>
+        <div class="agenda-text">
+          <h3>Live Demo: Fraud Detection</h3>
+          <p>Real-time analysis of bank transfers as they hit the database</p>
+        </div>
+      </div>
+    </div>
+    <div class="slide-num-badge">03 / 10</div>
+  </section>
+
+
+  <!-- ══ SLIDE 4 — REACTION ══ -->
+  <section class="slide slide-cdc" data-index="3">
+    <div class="slide-label">Foundations</div>
+    <h2 class="slide-heading">Reacting vs. Polling</h2>
+    <div class="divider"></div>
+
+    <div class="two-col">
+      <div>
+        <p class="big-quote">
+          "If your business logic depends on data changes, why wait for a timer to check if anything happened?"
+        </p>
+        <ul class="feature-list">
+          <li><span class="icon icon-green">✓</span><span><strong>Event-Driven</strong> — The database pushes changes to you</span></li>
+          <li><span class="icon icon-green">✓</span><span><strong>Low Latency</strong> — React in milliseconds, not minutes</span></li>
+          <li><span class="icon icon-green">✓</span><span><strong>Perfect Fidelity</strong> — Capture deletes and fast intermediate updates</span></li>
+          <li><span class="icon icon-blue">→</span><span>No more <code>SELECT * FROM table WHERE updated_at > last_check</code></span></li>
+          <li><span class="icon icon-orange">✗</span><span>Polling load slows down your production database</span></li>
+        </ul>
+      </div>
+
+      <div class="ops-card">
+        <h3>CDC: The Better Way</h3>
+        <div class="op-row">
+          <span class="op-badge op-insert">INSERT</span>
+          <span class="op-desc">New data arrives → Trigger business logic</span>
+        </div>
+        <div class="op-row">
+          <span class="op-badge op-update">UPDATE</span>
+          <span class="op-desc">State changes → Sync caches / Notify users</span>
+        </div>
+        <div class="op-row">
+          <span class="op-badge op-delete">DELETE</span>
+          <span class="op-desc">Records removed → Cleanup downstream systems</span>
+        </div>
+
+        <div style="margin-top:22px;padding-top:18px;border-top:1px solid var(--border-light)">
+          <h3>Debezium + Java</h3>
+          <ul class="feature-list" style="margin-top:12px">
+            <li><span class="icon icon-blue">✓</span><span>Java-native engine implementation</span></li>
+            <li><span class="icon icon-blue">✓</span><span>First-class Quarkus &amp; Spring integrations</span></li>
+            <li><span class="icon icon-blue">✓</span><span>Type-safe change event processing</span></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="slide-num-badge">04 / 10</div>
+  </section>
+
+
+  <!-- ══ SLIDE 5 — ARCHITECTURE ══ -->
+  <section class="slide slide-wal" data-index="4">
+    <div class="slide-label">Architecture</div>
+    <h2 class="slide-heading">The Reactive Pipeline</h2>
+    <div class="divider"></div>
+
+    <!-- FLOW 1: Production (Distributed) -->
+    <div class="flow-section">
+      <div class="flow-badge prod"><span class="dot"></span>Distributed — High Availability</div>
+      <div class="arch-diagram">
+        <div class="arch-box hl-pg">
+          <div class="box-icon">🐘</div>
+          <div class="box-label">PostgreSQL</div>
+          <div class="box-sub">Write-Ahead Log</div>
+        </div>
+        <div class="arch-arrow"><div class="line"></div><div class="label">WAL Stream</div></div>
+        <div class="arch-box hl-deb">
+          <div class="box-icon">🐝</div>
+          <div class="box-label">Debezium</div>
+          <div class="box-sub">Kafka Connect</div>
+        </div>
+        <div class="arch-arrow"><div class="line"></div><div class="label">JSON/Avro</div></div>
+        <div class="arch-box hl-kafka">
+          <div class="box-icon">📨</div>
+          <div class="box-label">Apache Kafka</div>
+          <div class="box-sub">topic-per-table</div>
+        </div>
+        <div class="arch-arrow"><div class="line"></div><div class="label">Listen</div></div>
+        <div class="arch-box hl-q">
+          <div class="box-icon">🚀</div>
+          <div class="box-label">Java Service</div>
+          <div class="box-sub">Reactive Consumer</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FLOW 2: Embedded (Single Process) -->
+    <div class="flow-section">
+      <div class="flow-badge demo"><span class="dot"></span>Embedded — Lightweight / Simple</div>
+      <div class="arch-diagram">
+        <div class="arch-box hl-pg">
+          <div class="box-icon">🐘</div>
+          <div class="box-label">PostgreSQL</div>
+          <div class="box-sub">Write-Ahead Log</div>
+        </div>
+        <div class="arch-arrow"><div class="line"></div><div class="label">pgoutput</div></div>
+        <div class="arch-box-compound">
+          <div class="box-icon">🚀</div>
+          <div class="box-label">Quarkus Application</div>
+          <div class="box-sub">Unified Java Binary</div>
+          <div class="inner-pills">
+            <span class="inner-pill pill-deb">Debezium Engine</span>
+            <span class="inner-pill pill-app">Business Logic</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="two-col" style="gap:20px;margin-top:4px">
+      <div class="code-block" style="font-size:13px"><span class="cmt">// Embedded Configuration in Java</span>
+<span class="kw">Configuration</span> config = <span class="kw">Configuration</span>.<span class="fn">create</span>()
+  .<span class="fn">with</span>(<span class="str">"connector.class"</span>, <span class="str">"...PostgresConnector"</span>)
+  .<span class="fn">with</span>(<span class="str">"database.dbname"</span>, <span class="str">"inventory"</span>)
+  .<span class="fn">build</span>();
+
+<span class="kw">DebeziumEngine</span> engine = <span class="kw">DebeziumEngine</span>.<span class="fn">create</span>(<span class="kw">Json</span>.<span class="kw">class</span>)
+  .<span class="fn">notifying</span>(record -> { <span class="cmt">/* Process change */</span> })
+  .<span class="fn">build</span>();</div>
+      
+      <div class="code-block" style="font-size:13px"><span class="cmt">// Reactive Broadcasting with Quarkus</span>
+<span class="kw">@Inject</span> <span class="kw">BroadcastProcessor</span>&lt;<span class="kw">Alert</span>&gt; processor;
+
+<span class="kw">public void</span> <span class="fn">onDatabaseChange</span>(<span class="kw">ChangeEvent</span> event) {
+    <span class="kw">Alert</span> alert = <span class="fn">analyze</span>(event);
+    processor.<span class="fn">onNext</span>(alert); <span class="cmt">// Stream to SSE/WebSockets</span>
+}</div>
+    </div>
+    <div class="slide-num-badge">05 / 10</div>
+  </section>
+
+
+  <!-- ══ SLIDE 6 — DEBEZIUM ══ -->
+  <section class="slide slide-debezium" data-index="5">
+    <div class="slide-label">The Engine</div>
+    <h2 class="slide-heading">Why Debezium?</h2>
+    <div class="divider"></div>
+
+    <div class="debezium-grid">
+      <div class="deb-card">
+        <div class="deb-icon" style="background:#fdeede">☕</div>
+        <h3>Java Ecosystem</h3>
+        <p>Built on top of Kafka Connect's powerful framework. Pure Java implementation for easy integration.</p>
+      </div>
+      <div class="deb-card">
+        <div class="deb-icon" style="background:#e0eef8">🛡️</div>
+        <h3>Data Consistency</h3>
+        <p>Uses Replication Slots to ensure <strong>at-least-once</strong> delivery. Never miss a change, even if the app crashes.</p>
+      </div>
+      <div class="deb-card">
+        <div class="deb-icon" style="background:#e2f5e5">📸</div>
+        <h3>Snapshotting</h3>
+        <p>Automatic initial snapshot of your database tables before switching to real-time WAL streaming.</p>
+      </div>
+      <div class="deb-card">
+        <div class="deb-icon" style="background:#ede8f8">🧩</div>
+        <h3>Extensible</h3>
+        <p>Supports PostgreSQL, MySQL, SQL Server, MongoDB, Oracle, and more with a unified event format.</p>
+      </div>
+      <div class="deb-card">
+        <div class="deb-icon" style="background:#e8f5eb">🔄</div>
+        <h3>Schema Logic</h3>
+        <p>Handles schema changes (DDL) and keeps track of table structures for precise data conversion.</p>
+      </div>
+      <div class="deb-card">
+        <div class="deb-icon" style="background:#fde8e8">⚡</div>
+        <h3>Low Latency</h3>
+        <p>Zero polling. Records appear in your Java code as soon as they are committed to the database log.</p>
+      </div>
+    </div>
+    <div class="slide-num-badge">06 / 10</div>
+  </section>
+
+
+  <!-- ══ SLIDE 7 — QUARKUS ══ -->
+  <section class="slide slide-setup" data-index="6">
+    <div class="slide-label">Development</div>
+    <h2 class="slide-heading">The Quarkus Edge</h2>
+    <div class="divider"></div>
+
+    <div class="setup-grid">
+      <div class="setup-step">
+        <div class="setup-step-header">
+          <div class="step-num">1</div>
+          <span>Developer Joy (Dev Mode)</span>
+        </div>
+        <p style="font-size:14px;color:var(--text-sub)">Live reload your CDC engine configuration and business rules without restarting.</p>
+        <div class="code-block"><span class="prompt">$</span> <span class="cmd">./mvnw quarkus:dev</span></div>
+      </div>
+
+      <div class="setup-step">
+        <div class="setup-step-header">
+          <div class="step-num">2</div>
+          <span>Reactive by Design</span>
+        </div>
+        <p style="font-size:14px;color:var(--text-sub)">Seamlessly pipe Debezium events into Mutiny streams or Server-Sent Events (SSE).</p>
+        <div class="code-block"><span class="kw">@GET</span>
+<span class="kw">@Produces</span>(MediaType.SERVER_SENT_EVENTS)
+<span class="kw">public</span> <span class="kw">Multi</span>&lt;<span class="kw">Alert</span>&gt; <span class="fn">stream</span>() {
+    <span class="kw">return</span> alertService.<span class="fn">getStream</span>();
+}</div>
+      </div>
+
+      <div class="setup-step">
+        <div class="setup-step-header">
+          <div class="step-num">3</div>
+          <span>Panache &amp; Hibernate</span>
+        </div>
+        <p style="font-size:14px;color:var(--text-sub)">Save detected anomalies or audit records with minimal boilerplate.</p>
+        <div class="code-block"><span class="kw">@Entity</span>
+<span class="kw">public class</span> <span class="kw">FraudAlert</span> <span class="kw">extends</span> <span class="kw">PanacheEntity</span> {
+    <span class="kw">public</span> <span class="kw">Long</span> accountId;
+    <span class="kw">public</span> <span class="kw">String</span> reason;
+}</div>
+      </div>
+
+      <div class="setup-step">
+        <div class="setup-step-header">
+          <div class="step-num">4</div>
+          <span>Native Compilation</span>
+        </div>
+        <p style="font-size:14px;color:var(--text-sub)">Compile your CDC engine to a GraalVM native binary for sub-second startup and low memory.</p>
+        <div class="code-block"><span class="prompt">$</span> <span class="cmd">./mvnw package -Dnative</span></div>
+      </div>
+    </div>
+    <div class="slide-num-badge">07 / 10</div>
+  </section>
+
+
+  <!-- ══ SLIDE 8 — USE CASES ══ -->
+  <section class="slide slide-usecases" data-index="7">
+    <div class="slide-label">Real World</div>
+    <h2 class="slide-heading">Java Use Cases for CDC</h2>
+    <div class="divider"></div>
+
+    <div class="usecase-grid">
+      <div class="usecase-card">
+        <div class="usecase-icon" style="background:#e0eef8">⚡</div>
+        <div class="usecase-text">
+          <h3>Real-time Dashboards</h3>
+          <p>Update UI components via WebSockets/SSE the instant data changes in the DB. No "Refresh" button required.</p>
+        </div>
+      </div>
+      <div class="usecase-card">
+        <div class="usecase-icon" style="background:#fdeede">🧠</div>
+        <div class="usecase-text">
+          <h3>Reactive Fraud Detection</h3>
+          <p>Apply complex business rules or ML models to every transaction as it happens, not hours later during a batch job.</p>
+        </div>
+      </div>
+      <div class="usecase-card">
+        <div class="usecase-icon" style="background:#e2f5e5">♻️</div>
+        <div class="usecase-text">
+          <h3>Cache Invalidation</h3>
+          <p>Keep Redis or Caffeine caches perfectly synchronized. Avoid the "Dual Write" problem entirely.</p>
+        </div>
+      </div>
+      <div class="usecase-card">
+        <div class="usecase-icon" style="background:#ede8f8">🧱</div>
+        <div class="usecase-text">
+          <h3>Microservices Outbox</h3>
+          <p>Reliably publish domain events to other services without requiring distributed transactions (2PC).</p>
+        </div>
+      </div>
+    </div>
+    <div class="slide-num-badge">08 / 10</div>
+  </section>
+
+
+  <!-- ══ SLIDE 9 — DEMO ══ -->
+  <section class="slide slide-demo" data-index="8">
+    <div class="slide-label">Hands-On</div>
+    <h2 class="slide-heading">Live Demo — Reactive Fraud Guard</h2>
+    <div class="divider"></div>
+
+    <div class="demo-grid">
+
+      <!-- LEFT: Setup summary -->
+      <div>
+        <div class="demo-section-title">Architecture (Embedded — No Kafka)</div>
+        <div class="demo-flow">
+          <div class="arch-box hl-pg">
+            <div class="box-icon">🐘</div>
+            <div class="box-label">PostgreSQL</div>
+            <div class="box-sub">Logical WAL</div>
+          </div>
+          <div class="arch-arrow"><div class="line"></div><div class="label"> Events</div></div>
+          <div class="arch-box-compound" style="flex:1">
+            <div class="box-icon">🚀</div>
+            <div class="box-label">Quarkus Java App</div>
+            <div class="box-sub">Native Engine</div>
+            <div class="inner-pills">
+              <span class="inner-pill pill-deb">Debezium</span>
+              <span class="inner-pill pill-app">SSE Stream</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="demo-box">
+          <div class="demo-section-title">Scenario: Real-time Bank Transfers</div>
+          <p style="font-size:14px;color:var(--text-sub);line-height:1.5">
+            We'll monitor a <code>transfers</code> table. Debezium captures the inserts, our Java code calculates risk, and Quarkus streams alerts to the UI.
+          </p>
+          <div class="table-fields" style="margin-top:12px">
+            <div class="field-pill">👤 person_id</div>
+            <div class="field-pill">💰 amount</div>
+            <div class="field-pill">📍 city</div>
+            <div class="field-pill">🗺️ lat/long</div>
+          </div>
+        </div>
+
+        <div class="demo-section-title" style="margin-top:auto;padding-top:14px">Run the demo</div>
+        <div class="cmd-block">
+<span class="prompt">$</span> <span class="cmd">docker compose up -d</span>
+<span class="prompt">$</span> <span class="cmd">./mvnw quarkus:dev</span></div>
+      </div>
+
+      <!-- RIGHT: Fraud scenarios -->
+      <div>
+        <div class="demo-section-title">Real-time Reactive Scenarios</div>
+        <div class="scenario-list">
+
+          <div class="scenario-card">
+            <div class="s-icon" style="background:#fdeede">💰</div>
+            <div class="s-body">
+              <h4>High Amount Alert</h4>
+              <p>Transfer > $10,000 detected in milliseconds.</p>
+              <div class="s-badges">
+                <span class="s-badge amount">ANOMALY</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="scenario-card">
+            <div class="s-icon" style="background:#fde8e8">⚡</div>
+            <div class="s-body">
+              <h4>Impossible Travel</h4>
+              <p>User appears in two cities faster than a plane can fly.<br/>
+              <em>Calculated using Haversine in Java.</em></p>
+              <div class="s-badges">
+                <span class="s-badge travel">FRAUD</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="scenario-card">
+            <div class="s-icon" style="background:#e2f5e5">📱</div>
+            <div class="s-body">
+              <h4>Live Dashboard Update</h4>
+              <p>SSE pushes the alert to the admin UI instantly.</p>
+              <div class="s-badges">
+                <span class="s-badge normal">REACTIVE</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+    <div class="slide-num-badge">09 / 10</div>
+  </section>
+
+
+  <!-- ══ SLIDE 10 — Q&A ══ -->
+  <section class="slide slide-qa" data-index="9">
+    <div class="grid-bg"></div>
+    <div class="qa-content">
+      <div class="qa-big">Q &amp; A</div>
+      <p class="qa-sub">Stop Polling. Start Reacting.<br/>Building event-driven systems with Java &amp; Debezium.</p>
+
+      <div class="qa-links">
+        <a class="qa-link" href="https://hectorvent.dev" target="_blank">🌐 hectorvent.dev</a>
+        <a class="qa-link" href="https://debezium.io" target="_blank">🐝 Debezium.io</a>
+        <a class="qa-link" href="https://quarkus.io" target="_blank">🚀 Quarkus.io</a>
+        <a class="qa-link" href="https://github.com/hectorvent/fraud-detection-demo" target="_blank">📂 Demo Source Code</a>
+        <a class="qa-link" href="https://github.com/hectorvent" target="_blank">🐙 GitHub @hectorvent</a>
+      </div>
+
+      <div style="margin-top:44px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+        <span class="tag blue">Java</span>
+        <span class="tag blue">Quarkus</span>
+        <span class="tag orange">Debezium</span>
+        <span class="tag orange">PostgreSQL</span>
+        <span class="tag green">Reactive</span>
+        <span class="tag purple">CDC</span>
+      </div>
+    </div>
+    <div class="slide-num-badge">10 / 10</div>
+  </section>
+
+</div><!-- /deck -->
+
+
+<!-- NAV BAR -->
+<div class="nav">
+  <button id="prevBtn" onclick="navigate(-1)" disabled title="Previous (←)">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="15 18 9 12 15 6"/>
+    </svg>
+  </button>
+  <span class="slide-counter" id="counter">1 / 10</span>
+  <button id="nextBtn" onclick="navigate(1)" title="Next (→)">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="9 18 15 12 9 6"/>
+    </svg>
+  </button>
+</div>
+
+
+<script>
+  const slides  = Array.from(document.querySelectorAll('.slide'));
+  const total   = slides.length;
+  let animating = false;
+
+  const params  = new URLSearchParams(location.search);
+  const initRaw = parseInt(params.get('slide'), 10);
+  const initIdx = (!isNaN(initRaw) && initRaw >= 1 && initRaw <= total) ? initRaw - 1 : 0;
+
+  slides[0].classList.remove('active');
+  slides[initIdx].classList.add('active');
+  let current = initIdx;
+
+  function navigate(dir) {
+    if (animating) return;
+    const next = current + dir;
+    if (next < 0 || next >= total) return;
+    goTo(next, dir);
+  }
+
+  function goTo(index, hint) {
+    if (animating || index === current || index < 0 || index >= total) return;
+    animating = true;
+
+    const dir = hint !== undefined ? hint : (index > current ? 1 : -1);
+    const leaving  = slides[current];
+    const entering = slides[index];
+
+    entering.classList.add(dir > 0 ? 'enter-right' : 'enter-left');
+    entering.style.opacity = '1';
+    entering.getBoundingClientRect();
+
+    leaving.classList.add('animating');
+    entering.classList.add('animating', 'active');
+    entering.classList.remove('enter-right', 'enter-left');
+
+    leaving.style.transform = dir > 0 ? 'translateX(-100%)' : 'translateX(100%)';
+    leaving.style.opacity   = '0';
+
+    current = index;
+    updateUI();
+    history.replaceState(null, '', `?slide=${current + 1}`);
+
+    setTimeout(() => {
+      leaving.classList.remove('active', 'animating');
+      leaving.style.transform = '';
+      leaving.style.opacity   = '';
+      entering.classList.remove('animating');
+      animating = false;
+    }, 420);
+  }
+
+  function updateUI() {
+    document.getElementById('counter').textContent = `${current + 1} / ${total}`;
+    document.getElementById('prevBtn').disabled    = current === 0;
+    document.getElementById('nextBtn').disabled    = current === total - 1;
+    document.getElementById('progressBar').style.width = `${((current + 1) / total) * 100}%`;
+  }
+
+  document.addEventListener('keydown', e => {
+    if (['ArrowRight', 'ArrowDown', ' '].includes(e.key)) { e.preventDefault(); navigate(1); }
+    if (['ArrowLeft',  'ArrowUp'].includes(e.key))         { e.preventDefault(); navigate(-1); }
+    if (e.key === 'Home') goTo(0, -1);
+    if (e.key === 'End')  goTo(total - 1, 1);
+  });
+
+  let touchStartX = 0;
+  document.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; }, { passive: true });
+  document.addEventListener('touchend',   e => {
+    const dx = e.changedTouches[0].clientX - touchStartX;
+    if (Math.abs(dx) > 50) navigate(dx < 0 ? 1 : -1);
+  });
+
+  updateUI();
+</script>
+</body>
+</html>
