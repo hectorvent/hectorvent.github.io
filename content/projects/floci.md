@@ -13,7 +13,7 @@ edition that requires no auth token, has no usage limits, and is MIT-licensed.
 The name comes from *cirrocumulus floccus*, a small, fluffy cloud formation. That's the design
 goal: minimal, lightweight, and always free.
 
-**GitHub:** [github.com/hectorvent/floci](https://github.com/hectorvent/floci)
+**GitHub:** [github.com/floci-io/floci](https://github.com/floci-io/floci)
 
 ---
 
@@ -31,11 +31,11 @@ goal: minimal, lightweight, and always free.
 
 ## Supported AWS Services
 
-SSM · SQS · SNS · S3 · DynamoDB · DynamoDB Streams · Lambda · API Gateway REST · API Gateway v2 · IAM · STS · Cognito · KMS · Kinesis · Secrets Manager · CloudFormation · Step Functions · ElastiCache · RDS · EventBridge · CloudWatch Logs · CloudWatch Metrics
+SSM · SQS · SNS · S3 · DynamoDB · DynamoDB Streams · Lambda · API Gateway REST · API Gateway v2 · IAM · STS · Cognito · KMS · Kinesis · Secrets Manager · CloudFormation · Step Functions · ElastiCache · RDS · MSK · EventBridge · EventBridge Scheduler · CloudWatch Logs · CloudWatch Metrics · ECS · EC2 · ACM · ECR · SES · SES v2 · OpenSearch · Athena · Glue · Data Firehose · AppConfig · AppConfigData · Bedrock Runtime · EKS
 
 Lambda functions run inside **real Docker containers** (Node.js, Python, Java, Go, Ruby) with a
-warm pool for sub-millisecond reuse. ElastiCache and RDS spin up actual Redis and database
-containers on demand. All 408 AWS SDK v2 compatibility checks pass.
+warm pool for sub-millisecond reuse. ElastiCache, RDS, MSK, ECS, EKS, ECR, and OpenSearch spin up
+real Docker containers on demand. All 35 services are free, with no auth tokens required.
 
 ---
 
@@ -52,7 +52,7 @@ containers on demand. All 408 AWS SDK v2 compatibility checks pass.
 ## Quick Start
 
 ```bash
-docker run --rm -p 4566:4566 hectorvent/floci:latest
+docker run --rm -p 4566:4566 floci/floci:latest
 ```
 
 Then point any AWS SDK or CLI at `http://localhost:4566` with any dummy credentials.

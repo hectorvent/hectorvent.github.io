@@ -59,15 +59,15 @@ flowchart LR
         Router["HTTP Router"]
 
         subgraph Stateless ["Stateless Services"]
-            A["SSM · SQS · SNS<br/>IAM · STS"]
+            A["SSM · SQS · SNS · IAM · STS · KMS<br/>Secrets Manager · SES · Cognito · Kinesis<br/>EventBridge · Scheduler · AppConfig<br/>CloudWatch · Step Functions · CloudFormation<br/>ACM · API Gateway · EC2<br/>Athena · Glue · Data Firehose · Bedrock Runtime"]
         end
 
         subgraph Persistent ["Stateful Services"]
-            B["S3 · DynamoDB<br/>API Gateway"]
+            B["S3 · DynamoDB<br/>DynamoDB Streams"]
         end
 
-        subgraph Container ["Container Services"]
-            C["Lambda · ElastiCache · RDS"]
+        subgraph Container ["Container Services  🐳"]
+            C["Lambda · ElastiCache · RDS<br/>MSK · ECS · EKS · ECR · OpenSearch"]
         end
 
         Router --> A
@@ -106,32 +106,48 @@ sequenceDiagram
 
 ## Supported AWS Services
 
-Floci covers 22 AWS service families out of the box:
+Floci covers 35 AWS services out of the box:
 
-| Service | Operations | Notable Features |
+| Service | How it works | Notable Features |
 |---|---|---|
-| **SSM Parameter Store** | 12 | PutParameter, GetParametersByPath, version history, labels, tagging |
-| **SQS** | 17 | Standard & FIFO, DLQ, visibility timeout, batch operations, tagging |
-| **SNS** | 13 | Topics, subscriptions, SQS/Lambda/HTTP delivery, tagging |
-| **S3** | 30 | Versioning, multipart upload, pre-signed URLs, Object Lock, event notifications |
-| **DynamoDB** | 22 | GSI/LSI, Query, Scan, TTL, transactions, batch operations |
-| **DynamoDB Streams** | 5 | Shard iterators, records, Lambda ESM trigger |
-| **Lambda** | 25 | Docker execution, warm pool, aliases, Function URLs, SQS/Kinesis/DynamoDB Streams ESM |
-| **API Gateway REST** | 24 | Resources, methods, stages, Lambda proxy, MOCK integrations |
-| **API Gateway v2** | 16 | HTTP APIs, routes, integrations, JWT authorizers, stages |
-| **IAM** | 65+ | Users, roles, groups, policies, inline policies, instance profiles, access keys |
-| **STS** | 7 | AssumeRole, WebIdentity, SAML, GetFederationToken, GetSessionToken |
-| **Cognito** | 20 | User pools, app clients, auth flows, JWKS/OpenID well-known endpoints |
-| **KMS** | 15 | Encrypt/decrypt, sign/verify, data keys, aliases |
-| **Kinesis** | 15 | Streams, shards, enhanced fan-out, split/merge |
-| **Secrets Manager** | 10 | Versioning, resource policies, tagging |
-| **CloudFormation** | 12 | Stacks, change sets, resource provisioning |
-| **Step Functions** | 11 | ASL execution, task tokens, execution history |
-| **ElastiCache** | 9 | Redis via Docker, IAM auth, SigV4 validation |
-| **RDS** | 14 | PostgreSQL & MySQL via Docker, IAM auth, JDBC |
-| **EventBridge** | 14 | Custom buses, rules, targets (SQS/SNS/Lambda) |
-| **CloudWatch Logs** | 14 | Log groups, streams, ingestion, filtering |
-| **CloudWatch Metrics** | 5 | Custom metrics, statistics, alarms |
+| **SSM Parameter Store** | In-process | Version history, labels, SecureString, tagging |
+| **SQS** | In-process | Standard & FIFO, DLQ, visibility timeout, batch, tagging |
+| **SNS** | In-process | Topics, subscriptions, SQS/Lambda/HTTP delivery, tagging |
+| **S3** | In-process | Versioning, multipart upload, pre-signed URLs, Object Lock, event notifications |
+| **DynamoDB** | In-process | GSI/LSI, Query, Scan, TTL, transactions, batch operations |
+| **DynamoDB Streams** | In-process | Shard iterators, records, Lambda ESM trigger |
+| **Lambda** | **Real Docker containers** | Warm pool, aliases, Function URLs, SQS/Kinesis/DDB Streams ESM |
+| **API Gateway REST** | In-process | Resources, methods, stages, Lambda proxy, MOCK integrations, AWS integrations |
+| **API Gateway v2 (HTTP)** | In-process | Routes, integrations, JWT authorizers, stages |
+| **IAM** | In-process | Users, roles, groups, policies, instance profiles, access keys |
+| **STS** | In-process | AssumeRole, WebIdentity, SAML, GetFederationToken, GetSessionToken |
+| **Cognito** | In-process | User pools, app clients, auth flows, JWKS/OpenID well-known endpoints |
+| **KMS** | In-process | Encrypt/decrypt, sign/verify, data keys, aliases |
+| **Kinesis** | In-process | Streams, shards, enhanced fan-out, split/merge |
+| **Secrets Manager** | In-process | Versioning, resource policies, tagging |
+| **Step Functions** | In-process | ASL execution, task tokens, execution history |
+| **CloudFormation** | In-process | Stacks, change sets, resource provisioning |
+| **EventBridge** | In-process | Custom buses, rules, targets (SQS/SNS/Lambda) |
+| **EventBridge Scheduler** | In-process | Schedule groups, schedules, flexible time windows, retry policies, DLQ |
+| **CloudWatch Logs** | In-process | Log groups, streams, ingestion, filtering |
+| **CloudWatch Metrics** | In-process | Custom metrics, statistics, alarms |
+| **ElastiCache** | **Real Docker containers** | Redis/Valkey, IAM auth, SigV4 validation |
+| **RDS** | **Real Docker containers** | PostgreSQL, MySQL & MariaDB, IAM auth, JDBC-compatible |
+| **MSK** | **Real Docker containers** | Kafka-compatible via Redpanda orchestration |
+| **Athena** | In-process | Query state machine (mock mode — queries accepted, results empty) |
+| **Glue** | In-process | Data Catalog for metadata management |
+| **Data Firehose** | In-process | Streaming delivery; records flushed as NDJSON to S3 |
+| **ECS** | **Real Docker containers** | Clusters, task definitions, tasks, services, capacity providers |
+| **EC2** | In-process | VPCs, subnets, security groups, instances, AMIs, key pairs, Elastic IPs |
+| **ACM** | In-process | Certificate issuance, validation lifecycle |
+| **ECR** | In-process + **real OCI registry** | Repositories, image push/pull, image-backed Lambda functions |
+| **SES** | In-process | Send email/raw email, identity verification, DKIM attributes |
+| **SES v2** | In-process | REST JSON API, identities, DKIM, feedback attributes |
+| **OpenSearch** | **Real Docker containers** | Domain CRUD, tags, versions, full REST API |
+| **AppConfig** | In-process | Applications, environments, profiles, hosted configuration versions, deployments |
+| **AppConfigData** | In-process | Configuration sessions, dynamic configuration retrieval |
+| **Bedrock Runtime** | In-process (stub) | Dummy Converse and InvokeModel responses for local development |
+| **EKS** | **Real Docker containers** | Clusters, tagging; real mode starts k3s with a live Kubernetes API server |
 
 ---
 
@@ -240,9 +256,23 @@ When an invocation arrives:
 | **ElastiCache** | ✅ Docker-native + IAM auth | ❌ Not available |
 | **RDS** | ✅ Docker-native + IAM auth | ❌ Not available |
 | **EventBridge** | ✅ Full | ⚠️ Partial |
+| **EventBridge Scheduler** | ✅ Full | ❌ Not available |
 | **CloudWatch Logs** | ✅ Full | ⚠️ Tagging and FilterLogEvents missing |
 | **CloudWatch Metrics** | ✅ Full | ✅ Full |
 | **S3 Event Notifications** | ✅ | ❌ SNS subscription fails |
+| **MSK (Kafka)** | ✅ Docker-native (Redpanda) | ❌ Not available |
+| **Athena** | ✅ Mock mode | ❌ Not available |
+| **Glue Data Catalog** | ✅ Full | ❌ Not available |
+| **Data Firehose** | ✅ NDJSON delivery to S3 | ❌ Not available |
+| **ECS** | ✅ Docker-native | ❌ Not available |
+| **EC2** | ✅ Full (VPCs, instances, SGs) | ⚠️ Partial |
+| **ACM** | ✅ Full | ❌ Not available |
+| **ECR** | ✅ Real OCI registry | ❌ Not available |
+| **SES / SES v2** | ✅ Full | ❌ Not available |
+| **OpenSearch** | ✅ Docker-native | ❌ Not available |
+| **AppConfig / AppConfigData** | ✅ Full | ❌ Not available |
+| **Bedrock Runtime** | ✅ Stub (local dev) | ❌ Not available |
+| **EKS** | ✅ Docker-native (k3s) | ❌ Not available |
 
 ### AWS SDK Compatibility Test Results
 
@@ -317,13 +347,13 @@ Floci was benchmarked against LocalStack 4.14.0 using a suite of 408 AWS SDK v2 
 ### Docker (one command)
 
 ```bash
-docker run --rm -p 4566:4566 hectorvent/floci:latest
+docker run --rm -p 4566:4566 floci/floci:latest
 ```
 
 Or use the JVM image:
 
 ```bash
-docker run --rm -p 4566:4566 hectorvent/floci:latest-jvm
+docker run --rm -p 4566:4566 floci/floci:latest-jvm
 ```
 
 ### docker-compose (with Lambda + ElastiCache + RDS)
@@ -331,7 +361,7 @@ docker run --rm -p 4566:4566 hectorvent/floci:latest-jvm
 ```yaml
 services:
   floci:
-    image: hectorvent/floci:latest
+    image: floci/floci:latest
     ports:
       - "4566:4566"
     volumes:
@@ -372,7 +402,7 @@ S3Client s3 = S3Client.builder()
 ### Build from source
 
 ```bash
-git clone https://github.com/hectorvent/floci.git
+git clone https://github.com/floci-io/floci.git
 cd floci
 
 # Dev mode with hot reload
@@ -425,12 +455,38 @@ production, "it works on my machine" becomes "it works, period."
 
 ---
 
+## Looking for an Azure Emulator?
+
+If your stack targets **Microsoft Azure** instead of AWS, check out
+**[Floci-Az](https://github.com/floci-io/floci-az)** — the Azure companion to Floci. Same tech
+stack (Quarkus, GraalVM native binary), same startup speed, same zero-auth philosophy.
+
+| Service | Port |
+|---|---|
+| **Blob Storage** | `4577` |
+| **Queue Storage** | `4577` |
+| **Table Storage** | `4577` |
+| **Azure Functions** | `4577` (real Docker containers) |
+
+```bash
+docker run -d --name floci-az \
+  -p 4577:4577 \
+  -v /var/run/docker.sock:/var/run/docker.sock \
+  floci/floci-az:latest
+```
+
+All four services share a single port — same pattern as Floci on AWS. Azure Functions run inside
+real Docker containers with a warm-container pool, and the same storage modes (memory, hybrid,
+persistent, wal) are available via `FLOCI_AZ_STORAGE_MODE`.
+
+---
+
 ## What's Next
 
-Floci is actively developed. Since the initial release, CloudFormation stacks, Step Functions,
-DynamoDB Streams, Kinesis, Cognito, KMS, Secrets Manager, EventBridge, CloudWatch Logs and Metrics,
-API Gateway v2, and expanded IAM/STS coverage have all landed. Contributions are welcome at
-[github.com/hectorvent/floci](https://github.com/hectorvent/floci).
+Floci is actively developed and has grown to 35 AWS services. Since the initial release, many
+services have landed: ECS, EKS, EC2, MSK, ECR, OpenSearch, Athena, Glue, Data Firehose, SES,
+ACM, AppConfig, Bedrock Runtime, EventBridge Scheduler, and more. Contributions are welcome at
+[github.com/floci-io/floci](https://github.com/floci-io/floci).
 
 ---
 

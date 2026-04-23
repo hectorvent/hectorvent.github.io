@@ -40,9 +40,10 @@ development and real-time communications is where I'm most at home.
 
 ## Open Source
 
-I build tools I actually need. My latest project is **[Floci](https://github.com/hectorvent/floci)**
-— a fast, free, MIT-licensed AWS service emulator built with Quarkus and compiled to a native
-binary with GraalVM.
+I build tools I actually need. My latest projects are **[Floci](https://github.com/floci-io/floci)**
+— a fast, free, MIT-licensed AWS service emulator — and **[Floci-Az](https://github.com/floci-io/floci-az)**
+— its Azure companion. Both are built with Quarkus and compiled to a native binary with GraalVM,
+with no auth tokens and no usage limits.
 
 I'm also proud to be one of the [**Quarkus 1,000 Contributors**](https://quarkus.io/1000contributors/), and I've also contributed to the [**Debezium**](https://debezium.io/) and [**Eclipse Vert.x**](https://vertx.io/) projects. These involvements in the open-source community help shape my passion for building high-performance, cloud-native systems.
 
