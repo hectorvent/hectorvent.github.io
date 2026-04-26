@@ -10,7 +10,7 @@ I'm **Hector Ventura**, a Lead Software Engineer based in **McKinney, Texas** wi
 applications.
 
 Currently I'm at [**Consensus Cloud Solutions**](https://www.consensus.com/), where I work on
-large-scale software systems. I'm also a co-founder of [**Alphnology**](https://alphnology.com/).
+large-scale software systems.
 
 ---
 

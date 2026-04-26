@@ -3,3 +3,5 @@
 /resources/_gen
 .hugo_build.lock
 temp/
+
+.DS_Store
