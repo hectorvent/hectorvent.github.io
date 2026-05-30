@@ -12,7 +12,7 @@ TocOpen: false
 draft: false
 ---
 
-*Talk and workshop presented at [JConf Dominicana](https://jconfdominicana.org/) — July 2024*
+*Talk and workshop presented at [JConf Dominicana](https://jconfdominicana.org/), July 2024*
 
 ---
 

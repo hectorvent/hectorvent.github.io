@@ -23,11 +23,18 @@ params:
   author: Hector Ventura
   defaultTheme: auto
 
+  # Default image used for social link previews (Open Graph / Twitter / Slack / LinkedIn)
+  # when a page has no usable raster cover. Must be an absolute path to a PNG/JPG.
+  images: ["/images/og-default.png"]
+
+  social:
+    twitter: hectorvent
+
   profileMode:
     enabled: true
     title: Hector Ventura
     subtitle: "Software Engineer"
-    imageUrl: "/images/avatar.svg"
+    imageUrl: "/images/hector_perfile.png"
     imageWidth: 120
     imageHeight: 120
     buttons:
@@ -36,6 +43,14 @@ params:
       - name: Projects
         url: /projects/
 
+  sponsor:
+    text: "I build free, MIT-licensed open-source tools like the Floci cloud emulators. If they save you time, please consider supporting their development."
+    links:
+      - name: Sponsor on GitHub
+        url: https://github.com/sponsors/hectorvent
+      - name: Donate via PayPal
+        url: https://paypal.me/hectorvent
+
   socialIcons:
     - name: github
       url: "https://github.com/hectorvent"
@@ -43,6 +58,8 @@ params:
       url: "https://linkedin.com/in/hectorvent"
     - name: twitter
       url: "https://twitter.com/hectorvent"
+    - name: bluesky
+      url: "https://bsky.app/profile/hectorvent.dev"
     - name: telegram
       url: "https://t.me/hectorvent"
 

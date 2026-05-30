@@ -2,11 +2,11 @@
 title: "About"
 layout: "about"
 url: "/about/"
-summary: "About Hector Ventura — Lead Software Engineer, VoIP specialist, open-source builder"
+summary: "About Hector Ventura: Lead Software Engineer, VoIP specialist, open-source builder"
 ---
 
 I'm **Hector Ventura**, a Lead Software Engineer based in **McKinney, Texas** with more than
-**10 years of experience** building backend systems, distributed services, and cloud-native
+**+18 years of experience** building backend systems, distributed services, and cloud-native
 applications.
 
 Currently I'm at [**Consensus Cloud Solutions**](https://www.consensus.com/), where I work on
@@ -16,7 +16,7 @@ large-scale software systems.
 
 ## What I Do
 
-My core stack is **Java** — Quarkus, Vert.x, Spring Boot, and Jakarta EE — running on Linux, in
+My core stack is **Java**, Quarkus, Vert.x, Spring Boot, and Jakarta EE, running on Linux, in
 containers (Docker, Podman), and deployed to AWS or IBM Cloud with Ansible and Terraform.
 
 Beyond backend services, I have deep experience in **VoIP and telecom engineering**: FreeSwitch,
@@ -40,10 +40,17 @@ development and real-time communications is where I'm most at home.
 
 ## Open Source
 
-I build tools I actually need. My latest projects are **[Floci](https://github.com/floci-io/floci)**
-— a fast, free, MIT-licensed AWS service emulator — and **[Floci-Az](https://github.com/floci-io/floci-az)**
-— its Azure companion. Both are built with Quarkus and compiled to a native binary with GraalVM,
-with no auth tokens and no usage limits.
+I build tools I actually need. My main project is **[Floci](https://floci.io)**, a suite of fast,
+free, MIT-licensed local cloud emulators that run without accounts, auth tokens, or usage limits.
+Each one is built with Quarkus and compiled to a native binary with GraalVM, starting in ~24 ms and
+idling around 13 MiB:
+
+- **[Floci](https://github.com/floci-io/floci)**: a drop-in replacement for LocalStack, emulating
+  47 AWS services on port `4566` (S3, SQS, Lambda, DynamoDB, RDS, EKS, and more).
+- **[Floci-Az](https://github.com/floci-io/floci-az)**: the Azure companion, covering Blob Storage,
+  Queues, Tables, Functions, Key Vault, Event Hubs, and Service Bus.
+- **[Floci-GCP](https://github.com/floci-io/floci-gcp)**: the Google Cloud companion, with Cloud
+  Storage, Pub/Sub, Firestore, Datastore, Secret Manager, IAM, and Managed Kafka.
 
 I'm also proud to be one of the [**Quarkus 1,000 Contributors**](https://quarkus.io/1000contributors/), and I've also contributed to the [**Debezium**](https://debezium.io/) and [**Eclipse Vert.x**](https://vertx.io/) projects. These involvements in the open-source community help shape my passion for building high-performance, cloud-native systems.
 
@@ -63,20 +70,20 @@ Later, from **2017** to **2020**, I was a tutor at [**ITLA (Instituto Tecnológi
 
 ## Education
 
-**Universidad Autónoma de Santo Domingo** — Computer Science (2007–2013)
+**Universidad Autónoma de Santo Domingo**: Computer Science (2007–2013)
 
 **Certifications:**
-- Containers, Kubernetes & Istio on IBM Cloud — IBM (2020)
-- IBM Cloud Kubernetes Service — IBM (2020)
-- MongoDB for Java Developers — MongoDB University (2014)
-- MongoDB for Developers — MongoDB University (2014)
-- MongoDB for DBAs — MongoDB University (2014)
+- Containers, Kubernetes & Istio on IBM Cloud, IBM (2020)
+- IBM Cloud Kubernetes Service, IBM (2020)
+- MongoDB for Java Developers, MongoDB University (2014)
+- MongoDB for Developers, MongoDB University (2014)
+- MongoDB for DBAs, MongoDB University (2014)
 
 ---
 
 ## Languages
 
-🇩🇴 Spanish — Native &nbsp;|&nbsp; 🇺🇸 English — Full professional proficiency
+🇩🇴 Spanish, Native &nbsp;|&nbsp; 🇺🇸 English, Full professional proficiency
 
 ---
 

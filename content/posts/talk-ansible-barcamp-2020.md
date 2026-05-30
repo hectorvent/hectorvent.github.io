@@ -1,7 +1,7 @@
 ---
 title: "Ansible: IT Automation Without an Agent"
 date: 2020-11-01
-description: "A talk given at BarCamp Dominican Republic 2020 introducing Ansible — the agentless, open source IT automation tool that lets you configure systems, deploy software, and orchestrate complex workflows using simple YAML playbooks."
+description: "A talk given at BarCamp Dominican Republic 2020 introducing Ansible, the agentless, open source IT automation tool that lets you configure systems, deploy software, and orchestrate complex workflows using simple YAML playbooks."
 tags: ["ansible", "devops", "automation", "linux", "infrastructure", "talk"]
 author: "Hector Ventura"
 cover:
@@ -12,7 +12,7 @@ TocOpen: false
 draft: false
 ---
 
-*Talk given at [BarCamp Dominican Republic](https://barcamp.org.do/) — November 2020*
+*Talk given at [BarCamp Dominican Republic](https://barcamp.org.do/), November 2020*
 
 ---
 
@@ -20,11 +20,11 @@ draft: false
 
 **Ansible®** is an open source, command-line IT automation tool written in Python. It can:
 
-- **Configure systems** — install packages, manage services, edit config files
-- **Deploy software** — push application releases across fleets of servers
-- **Orchestrate advanced workflows** — rolling upgrades, multi-tier deployments, system updates
+- **Configure systems**: install packages, manage services, edit config files
+- **Deploy software**: push application releases across fleets of servers
+- **Orchestrate advanced workflows**: rolling upgrades, multi-tier deployments, system updates
 
-What makes Ansible stand out is that it is **agentless** — it communicates with target nodes over standard protocols:
+What makes Ansible stand out is that it is **agentless**, it communicates with target nodes over standard protocols:
 - **OpenSSH** for Linux/Unix targets
 - **WinRM** for Windows targets
 
@@ -55,14 +55,14 @@ The core model is simple: a **Controller Node** reads an **Inventory** (a list o
          Dev       QA      UAT / Prod
 ```
 
-The same playbook runs against Dev, QA, UAT, and Production — with environment-specific variables swapped in via the inventory. One source of truth, consistent results everywhere.
+The same playbook runs against Dev, QA, UAT, and Production, with environment-specific variables swapped in via the inventory. One source of truth, consistent results everywhere.
 
 ---
 
 ## Key Concepts
 
 ### Target Node
-Any machine Ansible manages — a VM, a bare-metal server, a cloud instance, a network device. The only requirement is SSH access and Python installed.
+Any machine Ansible manages, a VM, a bare-metal server, a cloud instance, a network device. The only requirement is SSH access and Python installed.
 
 ### Inventory
 A file (INI or YAML) that lists the hosts and groups Ansible will target.
@@ -110,10 +110,10 @@ A YAML file that defines what to do on which hosts. Each play targets a group an
 ```
 
 ### Task
-A single unit of work — install a package, copy a file, run a command, start a service. Tasks use **modules** (Ansible's built-in library of actions).
+A single unit of work, install a package, copy a file, run a command, start a service. Tasks use **modules** (Ansible's built-in library of actions).
 
 ### Handler
-A task that only runs when notified by another task. Used for actions that should happen only when something actually changes — like restarting a service after its config file is updated.
+A task that only runs when notified by another task. Used for actions that should happen only when something actually changes, like restarting a service after its config file is updated.
 
 ### Role
 A structured way to organize related tasks, templates, variables, and files into a reusable unit. Roles follow a standard directory layout:
@@ -146,7 +146,7 @@ ansible-galaxy collection install community.general
 
 ## Demo Setup
 
-The demo showed a real-world scenario: **automating the provisioning of an HA Proxy load balancer with three web servers** — all configured from scratch using a single Ansible run.
+The demo showed a real-world scenario: **automating the provisioning of an HA Proxy load balancer with three web servers**, all configured from scratch using a single Ansible run.
 
 ```
   Clients
@@ -199,5 +199,5 @@ Ansible's agentless model and plain YAML syntax make it the easiest to start wit
 - [Ansible documentation](https://docs.ansible.com/)
 - [Getting started with Ansible](https://steampunk.si/blog/getting-started-with-ansible/)
 - [Introduction to configuration management tools](https://steampunk.si/blog/introduction-to-configuration-management-tools/)
-- [Adventures in Ansible — lessons from real-world deployments](https://www.redhat.com/en/blog/adventures-ansible-lessons-learned-real-world-deployments)
+- [Adventures in Ansible, lessons from real-world deployments](https://www.redhat.com/en/blog/adventures-ansible-lessons-learned-real-world-deployments)
 - [Demo source code](https://github.com/JavaDominicano/ansible-barcamp-2020)

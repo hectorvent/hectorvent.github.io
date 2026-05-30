@@ -12,7 +12,7 @@ TocOpen: false
 draft: false
 ---
 
-*Talk presented at the [Java Dominicano Monthly Talks](https://linktr.ee/javadominicano) — October 2024*
+*Talk presented at the [Java Dominicano Monthly Talks](https://linktr.ee/javadominicano), October 2024*
 
 ---
 

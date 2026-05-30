@@ -1,10 +1,12 @@
 ---
 title: "Introducing Floci: The Fast, Free, and Open-Source AWS Emulator"
 date: 2026-02-28
-description: "A deep dive into Floci — a lightweight, zero-auth AWS service emulator built with Quarkus and GraalVM that starts in 19ms, uses 42 MiB at idle, and passes 100% of AWS SDK compatibility tests."
+description: "A deep dive into Floci, a lightweight, zero-auth AWS service emulator built with Quarkus and GraalVM that starts in 19ms, uses 42 MiB at idle, and passes 100% of AWS SDK compatibility tests."
 tags: ["aws", "java", "quarkus", "devtools", "open-source", "docker"]
 author: "Hector Ventura"
 cover:
+  image: "/images/floci2-final4.svg"
+  imageDark: "/images/floci2-final4-dark.svg"
   alt: "Floci - AWS Local Emulator"
 showToc: true
 TocOpen: false
@@ -13,7 +15,7 @@ draft: false
 
 Local development against AWS services has always been painful. You either run real AWS (expensive,
 slow, requires an internet connection) or use an emulator. For years, **LocalStack** was the
-go-to choice — until they required auth tokens and locked down their community edition in early 2026.
+go-to choice, until they required auth tokens and locked down their community edition in early 2026.
 
 That gap is exactly what **Floci** fills.
 
@@ -31,11 +33,11 @@ That gap is exactly what **Floci** fills.
 
 **Floci** is a free, open-source local AWS service emulator written in Java using
 [Quarkus](https://quarkus.io/) and compiled to a native binary via GraalVM Mandrel. It runs as a
-single process on port `4566` — the same port LocalStack uses — so switching requires zero changes
+single process on port `4566`, the same port LocalStack uses, so switching requires zero changes
 to your existing code or tooling.
 
 The name comes from *cirrocumulus floccus* (abbreviated *floci*), a cloud formation that looks like
-popcorn — small, fluffy, and lightweight. That ethos drives the entire design: minimal footprint,
+popcorn, small, fluffy, and lightweight. That ethos drives the entire design: minimal footprint,
 fast startup, and no unnecessary overhead.
 
 ```
@@ -55,7 +57,7 @@ Floci follows a clean three-layer architecture for every AWS service it emulates
 flowchart LR
     Client["☁️ AWS SDK / CLI"]
 
-    subgraph Floci ["Floci — port 4566"]
+    subgraph Floci ["Floci, port 4566"]
         Router["HTTP Router"]
 
         subgraph Stateless ["Stateless Services"]
@@ -134,7 +136,7 @@ Floci covers 35 AWS services out of the box:
 | **ElastiCache** | **Real Docker containers** | Redis/Valkey, IAM auth, SigV4 validation |
 | **RDS** | **Real Docker containers** | PostgreSQL, MySQL & MariaDB, IAM auth, JDBC-compatible |
 | **MSK** | **Real Docker containers** | Kafka-compatible via Redpanda orchestration |
-| **Athena** | In-process | Query state machine (mock mode — queries accepted, results empty) |
+| **Athena** | In-process | Query state machine (mock mode, queries accepted, results empty) |
 | **Glue** | In-process | Data Catalog for metadata management |
 | **Data Firehose** | In-process | Streaming delivery; records flushed as NDJSON to S3 |
 | **ECS** | **Real Docker containers** | Clusters, task definitions, tasks, services, capacity providers |
@@ -297,8 +299,8 @@ Floci was benchmarked against LocalStack 4.14.0 using a suite of 408 AWS SDK v2 
 | Lambda Warm Pool | 3 | ✅ 3/3 | ✅ 3/3 |
 | Lambda Concurrent | 3 | ✅ 3/3 | ✅ 3/3 |
 | API Gateway REST | 43 | ✅ 43/43 | ⚠️ 42/43 |
-| API Gateway v2 / HTTP API | 5 | ✅ 5/5 | ❌ 0/5 — not in community |
-| S3 Event Notifications | 11 | ✅ 11/11 | ❌ 0/11 — SNS subscription fails |
+| API Gateway v2 / HTTP API | 5 | ✅ 5/5 | ❌ 0/5, not in community |
+| S3 Event Notifications | 11 | ✅ 11/11 | ❌ 0/11, SNS subscription fails |
 | IAM | 32 | ✅ 32/32 | ⚠️ 27/32 |
 | STS | 18 | ✅ 18/18 | ⚠️ 6/18 |
 | IAM Performance | 3 | ✅ 3/3 | ✅ 3/3 |
@@ -307,7 +309,7 @@ Floci was benchmarked against LocalStack 4.14.0 using a suite of 408 AWS SDK v2 
 | CloudWatch Metrics | 14 | ✅ 14/14 | ✅ 14/14 |
 | Secrets Manager | 15 | ✅ 15/15 | ⚠️ 13/15 |
 | KMS | 16 | ✅ 16/16 | ⚠️ 12/16 |
-| Cognito | 8 | ✅ 8/8 | ❌ 0/8 — not in community |
+| Cognito | 8 | ✅ 8/8 | ❌ 0/8, not in community |
 | Step Functions | 7 | ✅ 7/7 | ⚠️ 6/7 |
 | Kinesis | 15 | ✅ 15/15 | ⚠️ 8/15 |
 | ElastiCache | 21 | ✅ 21/21 | ❌ not in community |
@@ -448,7 +450,7 @@ flowchart LR
 
 ## Why Not Just Use Mocks?
 
-Unit-level mocks are fast but brittle — they test your code, not your integration with AWS. Floci
+Unit-level mocks are fast but brittle, they test your code, not your integration with AWS. Floci
 lets you run real AWS SDK calls, real IAM policies, real event-source mappings (SQS → Lambda), and
 real API Gateway routing, all locally. When your CI environment runs the exact same stack as
 production, "it works on my machine" becomes "it works, period."
@@ -458,7 +460,7 @@ production, "it works on my machine" becomes "it works, period."
 ## Looking for an Azure Emulator?
 
 If your stack targets **Microsoft Azure** instead of AWS, check out
-**[Floci-Az](https://github.com/floci-io/floci-az)** — the Azure companion to Floci. Same tech
+**[Floci-Az](https://github.com/floci-io/floci-az)**: the Azure companion to Floci. Same tech
 stack (Quarkus, GraalVM native binary), same startup speed, same zero-auth philosophy.
 
 | Service | Port |
@@ -475,7 +477,7 @@ docker run -d --name floci-az \
   floci/floci-az:latest
 ```
 
-All four services share a single port — same pattern as Floci on AWS. Azure Functions run inside
+All four services share a single port, same pattern as Floci on AWS. Azure Functions run inside
 real Docker containers with a warm-container pool, and the same storage modes (memory, hybrid,
 persistent, wal) are available via `FLOCI_AZ_STORAGE_MODE`.
 

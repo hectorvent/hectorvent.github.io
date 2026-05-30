@@ -1,23 +1,36 @@
 ---
-title: "Floci — AWS Local Emulator"
+title: "Floci: Local Cloud Emulators for AWS, Azure & GCP"
 date: 2026-02-28
-description: "A fast, free, and open-source local AWS service emulator built with Quarkus and GraalVM. Starts in 19ms, uses 42 MiB at idle, and passes 100% of AWS SDK compatibility tests."
-tags: ["aws", "java", "quarkus", "graalvm", "docker", "open-source"]
+description: "Floci is a suite of fast, free, MIT-licensed local cloud emulators for AWS, Azure, and GCP. Built with Quarkus and GraalVM, each starts in ~24ms and idles around 13 MiB, with no accounts, auth tokens, or usage limits."
+tags: ["aws", "azure", "gcp", "java", "quarkus", "graalvm", "docker", "open-source"]
 showToc: false
 draft: false
 ---
 
-**Floci** is a local AWS service emulator — a drop-in replacement for LocalStack's community
-edition that requires no auth token, has no usage limits, and is MIT-licensed.
+**Floci** is a suite of local cloud emulators that let you run **AWS, Azure, and GCP** services on
+your own machine, with no accounts, auth tokens, or usage limits. Every emulator is built with
+Quarkus, compiled to a native binary with GraalVM Mandrel, starts in ~24 ms, and idles around
+13 MiB. Everything is MIT-licensed and free forever.
 
 The name comes from *cirrocumulus floccus*, a small, fluffy cloud formation. That's the design
 goal: minimal, lightweight, and always free.
 
-**GitHub:** [github.com/floci-io/floci](https://github.com/floci-io/floci)
+**Website:** [floci.io](https://floci.io) &nbsp;·&nbsp; **GitHub:** [github.com/floci-io](https://github.com/floci-io)
 
 ---
 
-## Native Floci vs LocalStack
+## The Floci family
+
+- **[Floci](https://github.com/floci-io/floci)** (AWS): a drop-in replacement for LocalStack,
+  emulating 47 services on port `4566`.
+- **[Floci-Az](https://github.com/floci-io/floci-az)** (Azure): 8 services on port `4577`, including
+  Blob, Queue, and Table Storage, Functions, Key Vault, Event Hubs, and Service Bus.
+- **[Floci-GCP](https://github.com/floci-io/floci-gcp)** (GCP): 7 services on port `4588`, including
+  Cloud Storage, Pub/Sub, Firestore, Datastore, Secret Manager, IAM, and Managed Kafka.
+
+---
+
+## Native Floci (AWS) vs LocalStack
 
 | Metric | Native Floci | LocalStack | Advantage |
 |---|---|---|---|
@@ -35,16 +48,16 @@ SSM · SQS · SNS · S3 · DynamoDB · DynamoDB Streams · Lambda · API Gateway
 
 Lambda functions run inside **real Docker containers** (Node.js, Python, Java, Go, Ruby) with a
 warm pool for sub-millisecond reuse. ElastiCache, RDS, MSK, ECS, EKS, ECR, and OpenSearch spin up
-real Docker containers on demand. All 35 services are free, with no auth tokens required.
+real Docker containers on demand. All 47 services are free, with no auth tokens required.
 
 ---
 
 ## Stack
 
-- **Java 25** + **Quarkus 3.x** — reactive, lightweight runtime
-- **GraalVM Mandrel** — compiles to a native binary with no JVM required
-- **Vert.x** — embedded HTTP server for the Lambda Runtime API
-- **docker-java** — container lifecycle management
+- **Java 25** + **Quarkus 3.x**: reactive, lightweight runtime
+- **GraalVM Mandrel**: compiles to a native binary with no JVM required
+- **Vert.x**: embedded HTTP server for the Lambda Runtime API
+- **docker-java**: container lifecycle management
 - **MIT License**
 
 ---
@@ -52,10 +65,18 @@ real Docker containers on demand. All 35 services are free, with no auth tokens 
 ## Quick Start
 
 ```bash
+# AWS  (port 4566)
 docker run --rm -p 4566:4566 floci/floci:latest
+
+# Azure  (port 4577)
+docker run --rm -p 4577:4577 floci/floci-az:latest
+
+# GCP  (port 4588)
+docker run --rm -p 4588:4588 floci/floci-gcp:latest
 ```
 
-Then point any AWS SDK or CLI at `http://localhost:4566` with any dummy credentials.
+Then point any AWS, Azure, or GCP SDK or CLI at the matching local endpoint with any dummy
+credentials.
 
 ---
 

@@ -25,13 +25,13 @@ One of the proudest moments of my open-source journey was seeing my name include
 
 The momentum peaked when [**Quarkus 1.0.0.Final**](https://quarkus.io/blog/quarkus-1-0-0-Final-bits-are-here/) was released in late November 2019. Being listed as a contributor in the blog post for the first major stable version of such a game-changing technology was a significant milestone for me. It validated my early hope in the project and the "Supersonic Subatomic" vision.
 
-Quarkus has always been a community-driven project, and being part of those first 1,000 people who helped get it off the ground is something I value deeply. It serves as a reminder that every contribution—no matter how small—matters when you're building something that changes the status quo.
+Quarkus has always been a community-driven project, and being part of those first 1,000 people who helped get it off the ground is something I value deeply. It serves as a reminder that every contribution, no matter how small, matters when you're building something that changes the status quo.
 
 ## Looking Back
 
 Looking at the ecosystem today, it's easy to take for granted things like native compilation with GraalVM or sub-second startup times. But in 2019, these were revolutionary ideas. 
 
-My journey with Quarkus taught me to trust my instincts about emerging technologies. When you see a project that solves a real, painful problem with a clean and innovative approach, don't just watch from the sidelines—get involved.
+My journey with Quarkus taught me to trust my instincts about emerging technologies. When you see a project that solves a real, painful problem with a clean and innovative approach, don't just watch from the sidelines, get involved.
 
 ---
 

@@ -38,7 +38,7 @@ During those five years, I had the privilege of seeing hundreds of students tran
 
 Teaching these "important Linux services" day in and day out is what solidified my own understanding of system internals. It's the reason why, even today as a Software Engineer, I feel just as comfortable debugging a Java heap issue as I do troubleshooting a network stack or a systemd unit.
 
-Open source changed my life in 2006, and being able to pay that forward through Fundación Código Libre Dominicano—and later as a tutor at [**ITLA Santiago**](https://educapermanente.itla.edu.do/) from 2017 to 2020—is something I will always be proud of.
+Open source changed my life in 2006, and being able to pay that forward through Fundación Código Libre Dominicano, and later as a tutor at [**ITLA Santiago**](https://educapermanente.itla.edu.do/) from 2017 to 2020, is something I will always be proud of.
 
 ---
 

@@ -9,7 +9,7 @@ TocOpen: false
 draft: false
 ---
 
-*Upcoming talk at [Postgres MetroPlex Dallas](https://www.meetup.com/dallas-fort-worth-postgres/) — April 2026*
+*Upcoming talk at [Postgres MetroPlex Dallas](https://www.meetup.com/dallas-fort-worth-postgres/), April 2026*
 
 ---
 

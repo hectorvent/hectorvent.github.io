@@ -1,37 +1,23 @@
 ---
-title: "Meet Floci: a Fast, Free, No-Strings AWS Emulator"
+title: "Floci on dev.to: the Short Version"
 date: 2026-04-30
-description: "A summary of my dev.to post on Floci — a zero-auth, MIT-licensed AWS emulator that starts in 24ms and uses 13 MiB at idle."
+description: "A shorter, community-friendly intro to Floci that I published on dev.to, the fast, free, zero-auth AWS emulator. Cross-post with links to the original and the full deep dive."
 tags: ["aws", "java", "quarkus", "devtools", "open-source", "docker"]
 author: "Hector Ventura"
+cover:
+  image: "/images/floci2-final4.svg"
+  imageDark: "/images/floci2-final4-dark.svg"
+  alt: "Floci: a fast, free, no-strings AWS emulator"
 showToc: false
 TocOpen: false
 draft: false
 ---
 
-If you've been following AWS local development tooling, you probably noticed that **LocalStack Community Edition** started requiring auth tokens and moved features behind paid tiers in early 2026. That left a real gap for developers who just want to run AWS services locally. No account, no quotas, no strings attached.
+> **This is a cross-post.** I wrote a shorter, community-friendly intro to **Floci** for the dev.to audience. If you want the full architecture, benchmarks, and SDK compatibility numbers, read the in-depth write-up here on the site: [**Introducing Floci**](/posts/introducing-floci/).
 
-That's exactly why I built **Floci**.
+The short pitch: **LocalStack Community Edition** started requiring auth tokens and moved features behind paid tiers in early 2026. **Floci** fills that gap, a free, open-source, MIT-licensed AWS emulator that starts in ~24ms, idles at ~13 MiB, runs on the same port `4566`, and never asks for an account, token, or quota.
 
-## What is Floci?
-
-Floci is a free, open-source local AWS emulator written in Java with [Quarkus](https://quarkus.io/) and compiled to a native binary via GraalVM. It runs on port `4566`, the same port as LocalStack, so switching requires changing just one environment variable.
-
-The name comes from *cirrocumulus floccus*, a lightweight, popcorn-like cloud formation. The ethos: minimal footprint, fast startup, zero overhead.
-
-## Why it's different
-
-| Metric | Native Floci | LocalStack |
-|---|---|---|
-| Startup time | **~24 ms** | ~3,300 ms |
-| Idle memory | **~13 MiB** | ~143 MiB |
-| Image size | **~90 MB** | ~2 GB |
-| Auth required | **Never** | Yes |
-| Price | **Free forever** | Paid tiers |
-
-Beyond the numbers, Floci runs **real Docker-backed services** for Lambda, RDS (PostgreSQL/MySQL), ElastiCache, MSK, OpenSearch, ECS, and EKS (not shallow mocks). It also ships with 1,850+ automated SDK compatibility tests covering Java v2, JavaScript v3, boto3, AWS CLI v2, Go v2, and Rust.
-
-## Quick start
+It backs Lambda, RDS, ElastiCache, MSK, OpenSearch, ECS, and EKS with real Docker containers (not shallow mocks) and ships 1,850+ SDK compatibility tests across Java, JavaScript, boto3, AWS CLI, Go, and Rust.
 
 ```bash
 docker run -p 4566:4566 floci/floci:latest
@@ -39,14 +25,10 @@ export AWS_ENDPOINT_URL="http://localhost:4566"
 aws s3 mb s3://my-bucket
 ```
 
-Testcontainers and Spring Boot auto-configuration are available on Maven Central for seamless integration in your test suites.
+## Read it on dev.to
 
-## Supported services
-
-Floci covers 40+ AWS services including S3, SQS, SNS, DynamoDB (with Streams), Lambda, API Gateway, Cognito, KMS, Secrets Manager, IAM, STS, Step Functions, CloudFormation, EventBridge, CloudWatch, and Kinesis.
-
----
-
-For the full write-up including architecture details, benchmark methodology, and the roadmap read the original post on dev.to:
+The full community write-up lives here:
 
 **[Meet Floci: a fast, free, no-strings AWS emulator (no auth token, no quotas)](https://dev.to/hectorvent/meet-floci-a-fast-free-no-strings-aws-emulator-no-auth-token-no-quotas-2gdh)**
+
+Prefer the deep dive with architecture diagrams and benchmark methodology? That's the [**Introducing Floci**](/posts/introducing-floci/) post.

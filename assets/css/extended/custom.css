@@ -1,11 +1,114 @@
-/* Constrain logo-style cover images */
-.entry-cover img[src*="logo"],
-.entry-cover img[src*="Ansible"],
-.entry-cover img[src*="ansible-logo"],
-.entry-cover img[src$=".svg"] {
-    max-height: 220px !important;
-    width: auto !important;
-    margin: 0 auto !important;
+/* Home "Support open source" section */
+.support-section {
+    max-width: 600px;
+    margin: 2.5rem auto 0;
+    padding: 1.75rem 1.5rem;
+    text-align: center;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--entry);
+}
+
+.support-title {
+    margin: 0 0 0.5rem;
+    font-size: 1.25rem;
+}
+
+.support-text {
+    margin: 0 auto 1.25rem;
+    max-width: 48ch;
+    color: var(--secondary);
+    font-size: 0.95rem;
+    line-height: 1.6;
+}
+
+.support-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    justify-content: center;
+}
+
+.support-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.55rem 1.1rem;
+    border-radius: 999px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-decoration: none;
+    color: var(--theme);
+    background: var(--primary);
+    transition: transform 0.15s ease, opacity 0.15s ease;
+}
+
+.support-button:hover {
+    transform: translateY(-2px);
+    opacity: 0.92;
+}
+
+.support-heart {
+    color: #e25555;
+}
+
+/* Keep the nav/header pinned to the top while scrolling */
+.header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--theme);
+    border-bottom: 1px solid var(--border);
+}
+
+/* Offset anchored headings (TOC / #links) so they don't hide under the header */
+:target,
+.post-content h1[id],
+.post-content h2[id],
+.post-content h3[id],
+.post-content h4[id] {
+    scroll-margin-top: calc(var(--header-height) + 1rem);
+}
+
+/* Uniform cover dimensions: every cover occupies the same box (full content
+   width, fixed height) with the logo centered and contained (no distortion),
+   regardless of the source image's native size or aspect ratio. */
+.entry-cover img {
+    width: 100%;
+    height: 220px;
+    object-fit: contain;
+    margin: 0 auto;
+}
+
+/* Dark mode: keep transparent dark-logo covers legible on a light plaque (brand
+   colors untouched). Excluded: themed covers (own dark variant), the white
+   Quarkus logo (own dark plaque below), and the Pulumi hero (already ships a
+   solid white background, so it needs no plaque). */
+html[data-theme="dark"] .entry-cover:not(.entry-cover--themed) img:not([src*="quarkus"]):not([src*="iac-hero"]) {
+    background: #f4f4f5;
+    border-radius: 12px;
+    padding: 1.25rem;
+}
+
+/* The Quarkus wordmark is white, so it needs a dark plaque to stay legible in
+   light mode (and it reads fine on this plaque in dark mode too). */
+.entry-cover img[src*="quarkus-logo"] {
+    background: #2e2e33;
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+}
+
+/* Theme-aware cover: show light variant by default, dark variant in dark mode */
+.entry-cover--themed .cover-dark {
+    display: none;
+}
+
+html[data-theme="dark"] .entry-cover--themed .cover-light {
+    display: none;
+}
+
+html[data-theme="dark"] .entry-cover--themed .cover-dark {
+    display: inline-block;
 }
 
 .post-tags a {

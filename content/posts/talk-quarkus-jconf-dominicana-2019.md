@@ -1,7 +1,7 @@
 ---
 title: "Quarkus: Supersonic Subatomic Java"
 date: 2019-07-01
-description: "A talk given at JConf Dominicana 2019 introducing Quarkus — the Kubernetes-native Java stack built on GraalVM and OpenJDK, unifying imperative and reactive programming with blazing-fast startup times and minimal memory footprint."
+description: "A talk given at JConf Dominicana 2019 introducing Quarkus, the Kubernetes-native Java stack built on GraalVM and OpenJDK, unifying imperative and reactive programming with blazing-fast startup times and minimal memory footprint."
 tags: ["java", "quarkus", "graalvm", "kubernetes", "microservices", "talk"]
 author: "Hector Ventura"
 cover:
@@ -12,7 +12,7 @@ TocOpen: false
 draft: false
 ---
 
-*Talk given at [JConf Dominicana](https://jconfdominicana.org/) — July 2019*
+*Talk given at [JConf Dominicana](https://jconfdominicana.org/), July 2019*
 
 ---
 
@@ -26,11 +26,11 @@ draft: false
 | **License** | Apache License v2.0 |
 | **Version at time of talk** | 1.0.0.CR2 |
 
-The tagline says it all: **Supersonic Subatomic Java** — startup times measured in milliseconds, memory footprints measured in megabytes.
+The tagline says it all: **Supersonic Subatomic Java**, startup times measured in milliseconds, memory footprints measured in megabytes.
 
 ---
 
-## GraalVM — The Engine Behind Native Compilation
+## GraalVM: The Engine Behind Native Compilation
 
 **GraalVM** is a universal virtual machine capable of running JavaScript, Python, Ruby, R, Java, all JVM-based languages, and LLVM-based languages like C and C++.
 
@@ -59,7 +59,7 @@ Kotlin  Java  JS  Ruby  R  Python  C  C++  Rust
    OpenJDK      Node.js    Oracle DB   standalone
 ```
 
-### AOT vs JIT — Choosing Your Trade-offs
+### AOT vs JIT: Choosing Your Trade-offs
 
 GraalVM introduces **Ahead-of-Time (AOT)** compilation as an alternative to the traditional **Just-in-Time (JIT)** model:
 
@@ -71,7 +71,7 @@ GraalVM introduces **Ahead-of-Time (AOT)** compilation as an alternative to the 
 | **Reduced Max Latency** | Good | Excellent |
 | **Small Packaging** | Excellent | Average |
 
-AOT wins on startup speed, memory, and packaging — ideal for containers and serverless. JIT wins on raw throughput — ideal for long-running batch or high-load services.
+AOT wins on startup speed, memory, and packaging, ideal for containers and serverless. JIT wins on raw throughput, ideal for long-running batch or high-load services.
 
 ---
 
@@ -79,14 +79,14 @@ AOT wins on startup speed, memory, and packaging — ideal for containers and se
 
 Quarkus doesn't reinvent the wheel. It is built on top of the Java ecosystem's most proven libraries and specifications:
 
-- **CDI** — Contexts and Dependency Injection
-- **JAX-RS** — REST web services
-- **JPA / JTA** — Persistence and transactions
-- **MicroProfile** — Cloud-native Java APIs
-- **Apache Camel** — Integration patterns
-- **Hibernate** — ORM
-- **Eclipse Vert.x** — Reactive toolkit
-- **Netty** — Async networking
+- **CDI**: Contexts and Dependency Injection
+- **JAX-RS**: REST web services
+- **JPA / JTA**: Persistence and transactions
+- **MicroProfile**: Cloud-native Java APIs
+- **Apache Camel**: Integration patterns
+- **Hibernate**: ORM
+- **Eclipse Vert.x**: Reactive toolkit
+- **Netty**: Async networking
 
 ### MicroProfile 3.0
 
@@ -113,10 +113,10 @@ MicroProfile 3.0 (current at the time) provided a rich set of cloud-native APIs 
 
 Quarkus was designed with developer experience at its core:
 
-- **Unified configuration** — one `application.properties` file for everything
-- **Live reload in the blink of an eye** — save the file, see the change instantly, no restart needed
+- **Unified configuration**: one `application.properties` file for everything
+- **Live reload in the blink of an eye**: save the file, see the change instantly, no restart needed
 - **Simplified code for 80% of use cases**, flexible for the remaining 20%
-- **Effortless native executable generation** — one Maven flag to produce a native binary
+- **Effortless native executable generation**: one Maven flag to produce a native binary
 
 > *"Wait. So you just save it, and your code is running? And it's Java?!"*
 > *"I know, right? Supersonic Java, FTW!"*
@@ -154,7 +154,7 @@ public Publisher<String> stream() {
 
 ### How Does Quarkus Achieve This?
 
-The secret is **Eclipse Vert.x / Netty** as the unified I/O core. All incoming traffic — HTTP requests, messages, events — flows through the same non-blocking layer:
+The secret is **Eclipse Vert.x / Netty** as the unified I/O core. All incoming traffic, HTTP requests, messages, events, flows through the same non-blocking layer:
 
 ```
   Undertow         RESTEasy        Reactive     Reactive
@@ -246,13 +246,13 @@ mvn package -Pnative
 
 The live demo covered:
 
-- **Easy configuration** — single unified properties file
-- **The Twelve-Factor App** — codebase, dependencies, config, port binding, etc.
+- **Easy configuration**: single unified properties file
+- **The Twelve-Factor App**: codebase, dependencies, config, port binding, etc.
 - **Microservices patterns**:
   - Fault Tolerance & Resilience (`@Fallback`, `@Retry`, `@CircuitBreaker`)
   - Metrics (`/metrics` endpoint via MicroProfile Metrics)
   - Health Checks (`/health/live`, `/health/ready`)
-- **Containerizing the demo** — packaging the native binary in a minimal Docker image
+- **Containerizing the demo**: packaging the native binary in a minimal Docker image
 
 ---
 

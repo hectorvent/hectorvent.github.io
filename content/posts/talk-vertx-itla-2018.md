@@ -1,7 +1,7 @@
 ---
 title: "Introduction to Eclipse Vert.x: Reactive Programming on the JVM"
 date: 2018-09-01
-description: "A talk given at ITLA Santiago introducing reactive systems concepts and Eclipse Vert.x — an event-driven, non-blocking toolkit for building reactive applications on the JVM."
+description: "A talk given at ITLA Santiago introducing reactive systems concepts and Eclipse Vert.x, an event-driven, non-blocking toolkit for building reactive applications on the JVM."
 tags: ["java", "vertx", "reactive", "jvm", "talk"]
 author: "Hector Ventura"
 cover:
@@ -12,7 +12,7 @@ TocOpen: false
 draft: false
 ---
 
-*Talk given at [ITLA Santiago](https://itla.edu.do/) — September 2018*
+*Talk given at [ITLA Santiago](https://itla.edu.do/), September 2018*
 
 ---
 
@@ -21,10 +21,10 @@ draft: false
 Modern applications demand a new architecture. Reactive systems are designed to be:
 
 - **More flexible** and adaptable to change
-- **Loosely coupled** — components interact without tight dependencies
-- **Scalable** — from a single node to thousands
-- **Fault tolerant** — they handle failures gracefully instead of crashing
-- **Highly responsive** — they respond in a timely manner, always
+- **Loosely coupled**: components interact without tight dependencies
+- **Scalable**: from a single node to thousands
+- **Fault tolerant**: they handle failures gracefully instead of crashing
+- **Highly responsive**: they respond in a timely manner, always
 
 ### The Reactive Manifesto
 
@@ -44,13 +44,13 @@ The [Reactive Manifesto](https://www.reactivemanifesto.org/) defines four core t
                     └─────────────┘
 ```
 
-**1. Responsive** — The system responds in a timely manner whenever possible. Fast and consistent response times, establishing reliable upper bounds so they deliver a consistent quality of service.
+**1. Responsive**: The system responds in a timely manner whenever possible. Fast and consistent response times, establishing reliable upper bounds so they deliver a consistent quality of service.
 
-**2. Resilient** — The ability of a system to withstand and recover from failures and disturbances. Failures are contained within each component, isolating them from each other.
+**2. Resilient**: The ability of a system to withstand and recover from failures and disturbances. Failures are contained within each component, isolating them from each other.
 
-**3. Elastic** — The system reacts to changes in the input rate by increasing or decreasing the resources allocated to serve those inputs. No contention points or central bottlenecks.
+**3. Elastic**: The system reacts to changes in the input rate by increasing or decreasing the resources allocated to serve those inputs. No contention points or central bottlenecks.
 
-**4. Message Driven** — Communication via messages/events, including errors, with transparency in the location of components — highly decoupled.
+**4. Message Driven**: Communication via messages/events, including errors, with transparency in the location of components, highly decoupled.
 
 ---
 
@@ -73,7 +73,7 @@ Applications built the old way simply cannot meet these new requirements. Reacti
 
 > **Eclipse Vert.x** is a toolkit for building reactive applications on the JVM.
 
-Vert.x is an open source project under the **Eclipse Foundation**, started in 2012 by Tim Fox. It is built on top of **Netty** — a high-performance asynchronous networking library.
+Vert.x is an open source project under the **Eclipse Foundation**, started in 2012 by Tim Fox. It is built on top of **Netty**, a high-performance asynchronous networking library.
 
 ### Scalable by Design
 
@@ -81,7 +81,7 @@ Vert.x is **event-driven** and **non-blocking**. This means your applications ca
 
 ### Polyglot
 
-You can use Vert.x with multiple languages — all running on the same JVM:
+You can use Vert.x with multiple languages, all running on the same JVM:
 
 - **Java**
 - **JavaScript**
@@ -133,7 +133,7 @@ $vertx.create_http_server.request_handler { |req|
 
 ### Verticle
 
-The **Verticle** is the fundamental unit of deployment in Vert.x — similar to an Actor in actor-model frameworks. You write your application logic inside Verticles.
+The **Verticle** is the fundamental unit of deployment in Vert.x, similar to an Actor in actor-model frameworks. You write your application logic inside Verticles.
 
 ```java
 import io.vertx.core.AbstractVerticle;
@@ -147,15 +147,15 @@ public class Server extends AbstractVerticle {
 
 ### Event Bus
 
-The **Event Bus** is the nervous system of Vert.x. It allows different parts of your application — even running on different nodes — to communicate via messages. It supports three patterns:
+The **Event Bus** is the nervous system of Vert.x. It allows different parts of your application, even running on different nodes, to communicate via messages. It supports three patterns:
 
-- **Point to Point** — send a message to a single consumer
-- **Publish / Subscribe** — broadcast to all registered consumers
-- **Request / Response** — send and await a reply
+- **Point to Point**: send a message to a single consumer
+- **Publish / Subscribe**: broadcast to all registered consumers
+- **Request / Response**: send and await a reply
 
 ### Event Loop
 
-Vert.x follows the **multi-reactor pattern**: instead of a single event loop (like Node.js), Vert.x runs multiple event loops — one per CPU core — allowing true parallel processing without shared mutable state.
+Vert.x follows the **multi-reactor pattern**: instead of a single event loop (like Node.js), Vert.x runs multiple event loops, one per CPU core, allowing true parallel processing without shared mutable state.
 
 ```
 Single Reactor         Multi-Reactor (Vert.x)

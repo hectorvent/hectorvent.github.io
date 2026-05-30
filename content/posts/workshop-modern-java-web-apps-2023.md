@@ -12,7 +12,7 @@ TocOpen: false
 draft: false
 ---
 
-*Workshop presented at [PUCMM](https://www.pucmm.edu.do/) — November 2023. Co-presented with Freddy Peña.*
+*Workshop presented at [PUCMM](https://www.pucmm.edu.do/), November 2023. Co-presented with Freddy Peña.*
 
 ---
 
