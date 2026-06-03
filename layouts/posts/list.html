@@ -1,0 +1,50 @@
+{{- define "main" }}
+<div class="list-page">
+
+  <header class="list-head">
+    <span class="eyebrow">Blog</span>
+    <h1>{{ .Title }}</h1>
+    {{- with .Description }}<p class="list-lead">{{ . | markdownify }}</p>{{- end }}
+  </header>
+
+  {{- $paginator := .Paginate .RegularPages }}
+  <div class="post-grid">
+    {{- range $paginator.Pages }}
+    {{- $cover := .Params.cover.image }}
+    <article class="post-card{{ if $cover }} has-cover{{ end }}">
+      <div class="post-card-cover">
+        {{- with $cover }}
+        <img src="{{ . }}" loading="lazy" alt="{{ $.Title | plainify }}">
+        {{- else }}
+        <span class="post-card-ph" aria-hidden="true">{{ with index .Params.tags 0 }}#{{ . }}{{ else }}HV{{ end }}</span>
+        {{- end }}
+      </div>
+      <div class="post-card-body">
+        <div class="post-card-meta">
+          <time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "Jan 2, 2006" }}</time>
+          {{- if (.Param "ShowReadingTime") }} <span aria-hidden="true">·</span> {{ .ReadingTime }} min{{ end }}
+        </div>
+        <h3 class="post-card-title">{{ .Title }}</h3>
+        <p class="post-card-sum">{{ .Summary | plainify | htmlUnescape | truncate 130 }}</p>
+        {{- with .Params.tags }}
+        <div class="post-card-tags">
+          {{- range first 3 . }}<span>#{{ . }}</span>{{ end }}
+        </div>
+        {{- end }}
+      </div>
+      <a class="post-card-link" href="{{ .Permalink }}" aria-label="Read: {{ .Title | plainify }}"></a>
+    </article>
+    {{- end }}
+  </div>
+
+  {{- if gt $paginator.TotalPages 1 }}
+  <footer class="page-footer">
+    <nav class="pagination">
+      {{- if $paginator.HasPrev }}<a class="prev" href="{{ $paginator.Prev.URL | absURL }}">«&nbsp;{{ i18n "prev_page" }}</a>{{ end }}
+      {{- if $paginator.HasNext }}<a class="next" href="{{ $paginator.Next.URL | absURL }}">{{ i18n "next_page" }}&nbsp;»</a>{{ end }}
+    </nav>
+  </footer>
+  {{- end }}
+
+</div>
+{{- end }}

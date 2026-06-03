@@ -4,6 +4,8 @@ date: 2018-09-01
 description: "A talk given at ITLA Santiago introducing reactive systems concepts and Eclipse Vert.x, an event-driven, non-blocking toolkit for building reactive applications on the JVM."
 tags: ["java", "vertx", "reactive", "jvm", "talk"]
 author: "Hector Ventura"
+event: "ITLA · Santiago"
+aliases: ["/posts/talk-vertx-itla-2018/"]
 cover:
   image: "/images/vertx-hero.png"
   alt: "Eclipse Vert.x logo"

@@ -1,0 +1,89 @@
+{{- define "main" }}
+<article class="presentation">
+
+  {{/* ---------- Hero ---------- */}}
+  <header class="presentation-hero{{ with .Params.cover.image }} has-cover{{ end }}">
+    <div class="presentation-hero-text">
+      <a class="back-link" href="/presentations/">← All presentations</a>
+      <span class="eyebrow">{{ if .Params.deck }}Interactive presentation{{ else }}Talk{{ end }}</span>
+      <h1 class="hero-title">{{ .Title }}</h1>
+
+      <div class="presentation-meta">
+        <time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "January 2, 2006" }}</time>
+        {{- with .Params.event }}<span aria-hidden="true">·</span><span>{{ . }}</span>{{ end }}
+        {{- with .Params.youtube }}<span aria-hidden="true">·</span><span class="meta-rec"><svg class="ico" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>Recording available</span>{{ end }}
+      </div>
+
+      {{- with .Description }}<p class="hero-sub">{{ . }}</p>{{ end }}
+
+      {{- with .Params.tags }}
+      <div class="presentation-tags">
+        {{- range . }}<span>#{{ . }}</span>{{ end }}
+      </div>
+      {{- end }}
+
+      {{- if or .Params.deck .Params.youtube }}
+      <div class="hero-cta">
+        {{- with .Params.deck }}<a class="btn btn-primary" href="{{ . }}"><svg class="ico" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>Launch presentation</a>{{ end }}
+        {{- with .Params.youtube }}<a class="btn btn-ghost" href="#recording"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>Watch recording</a>{{ end }}
+      </div>
+      {{- end }}
+    </div>
+
+    {{- with .Params.cover.image }}
+    <div class="presentation-cover">
+      <img src="{{ . }}" alt="{{ $.Title | plainify }}" loading="eager">
+    </div>
+    {{- end }}
+  </header>
+
+  {{/* ---------- Recording ---------- */}}
+  {{- with .Params.youtube }}
+  <section id="recording" class="presentation-section">
+    <div class="section-head">
+      <span class="eyebrow">Recording</span>
+      <h2>Watch the talk</h2>
+    </div>
+    <div class="video-embed">
+      <iframe
+        src="https://www.youtube-nocookie.com/embed/{{ . }}"
+        title="{{ $.Title | plainify }}"
+        loading="lazy"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+        referrerpolicy="strict-origin-when-cross-origin"
+        allowfullscreen></iframe>
+    </div>
+  </section>
+  {{- end }}
+
+  {{/* ---------- Editorial content ---------- */}}
+  {{- if .Content }}
+  <section class="presentation-section">
+    <div class="section-head">
+      <span class="eyebrow">Overview</span>
+      <h2>About this {{ if .Params.deck }}talk{{ else }}session{{ end }}</h2>
+    </div>
+    <div class="post-content presentation-content">
+      {{- .Content -}}
+    </div>
+  </section>
+  {{- end }}
+
+  {{/* ---------- Footer / launch CTA ---------- */}}
+  {{- if .Params.deck }}
+  <section class="connect presentation-launch">
+    <h2>Ready to dive in?</h2>
+    <p>Open the interactive slide deck. Best viewed on desktop; use the arrow keys or spacebar to navigate.</p>
+    <div class="hero-cta">
+      <a class="btn btn-primary" href="{{ .Params.deck }}"><svg class="ico" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>Launch presentation</a>
+      <a class="btn btn-ghost" href="/presentations/">All presentations</a>
+    </div>
+  </section>
+  {{- else }}
+  <div class="presentation-footer">
+    <a class="btn btn-ghost" href="/presentations/">← All presentations</a>
+  </div>
+  {{- end }}
+
+</article>
+{{- end }}

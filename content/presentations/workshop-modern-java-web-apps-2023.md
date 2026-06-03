@@ -4,6 +4,8 @@ date: 2023-11-01
 description: "A hands-on workshop presented at PUCMM in collaboration with Java Dominicano, focusing on building full-stack Java applications using Vaadin Flow, Spring Boot, and modern deployment practices with Docker and Ansible."
 tags: ["java", "vaadin", "spring-boot", "docker", "ansible", "workshop", "pucmm"]
 author: "Hector Ventura"
+event: "PUCMM · Java Dominicano"
+aliases: ["/posts/workshop-modern-java-web-apps-2023/"]
 cover:
   image: "/images/vaadin-logo.svg"
   alt: "Vaadin Logo"

@@ -4,6 +4,8 @@ date: 2020-11-01
 description: "A talk given at BarCamp Dominican Republic 2020 introducing Ansible, the agentless, open source IT automation tool that lets you configure systems, deploy software, and orchestrate complex workflows using simple YAML playbooks."
 tags: ["ansible", "devops", "automation", "linux", "infrastructure", "talk"]
 author: "Hector Ventura"
+event: "BarCamp Dominican Republic"
+aliases: ["/posts/talk-ansible-barcamp-2020/"]
 cover:
   image: "/images/ansible-logo.png"
   alt: "Ansible logo"

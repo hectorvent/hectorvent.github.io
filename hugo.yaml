@@ -21,7 +21,9 @@ params:
   title: Hector Ventura
   description: Software Engineer & Developer
   author: Hector Ventura
+  email: hectorvent@gmail.com
   defaultTheme: auto
+  ShowReadingTime: true
 
   # Default image used for social link previews (Open Graph / Twitter / Slack / LinkedIn)
   # when a page has no usable raster cover. Must be an absolute path to a PNG/JPG.
@@ -99,10 +101,10 @@ menu:
       name: Presentations
       url: /presentations/
       weight: 25
-    - identifier: projects
-      name: Projects
-      url: /projects/
-      weight: 30
+    - identifier: contact
+      name: Contact
+      url: /contact/
+      weight: 35
     - identifier: search
       name: Search
       url: /search/

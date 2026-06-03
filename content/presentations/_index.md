@@ -1,4 +1,4 @@
 ---
 title: "Presentations"
-description: "A collection of my interactive presentations and talks on software engineering, data streaming, and cloud infrastructure."
+description: "Talks, workshops, and interactive slide decks on Java, Quarkus, data streaming, VoIP, and cloud infrastructure, from JConf Dominicana to the Postgres MetroPlex Dallas community."
 ---

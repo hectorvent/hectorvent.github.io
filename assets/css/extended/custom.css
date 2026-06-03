@@ -1,8 +1,51 @@
+/* ============================================================
+   Floci-aligned brand tokens
+   Indigo #5559a7 is Floci's signature color (the "cloud dot" in
+   the logo). PaperMod uses --primary for both text and links, so
+   we introduce a separate --accent to colorize links/buttons
+   without tinting body copy.
+   ============================================================ */
+:root {
+    --accent: #5559a7;
+    --accent-hover: #474b8f;
+    --brand: #5559a7;
+    --brand-contrast: #ffffff;
+    --brand-soft: rgba(85, 89, 167, 0.12);
+}
+
+:root[data-theme="dark"] {
+    --accent: #9b9fe0;
+    --accent-hover: #b6b9ec;
+    --brand: #5559a7;
+    --brand-contrast: #ffffff;
+    --brand-soft: rgba(155, 159, 224, 0.16);
+}
+
+/* Content links pick up the Floci indigo */
+.post-content a {
+    color: var(--accent);
+    text-decoration-color: var(--brand-soft);
+}
+
+.post-content a:hover {
+    text-decoration-color: var(--accent);
+}
+
+/* Active / hovered nav item */
+#menu a:hover,
+#menu .active {
+    color: var(--accent);
+}
+
+#menu .active::after {
+    background: var(--accent);
+}
+
 /* Home "Support open source" section */
 .support-section {
-    max-width: 600px;
-    margin: 2.5rem auto 0;
-    padding: 1.75rem 1.5rem;
+    max-width: 620px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
     text-align: center;
     border: 1px solid var(--border);
     border-radius: var(--radius);
@@ -38,18 +81,18 @@
     font-weight: 600;
     font-size: 0.9rem;
     text-decoration: none;
-    color: var(--theme);
-    background: var(--primary);
-    transition: transform 0.15s ease, opacity 0.15s ease;
+    color: var(--brand-contrast);
+    background: var(--brand);
+    transition: transform 0.15s ease, background 0.15s ease;
 }
 
 .support-button:hover {
     transform: translateY(-2px);
-    opacity: 0.92;
+    background: var(--accent-hover);
 }
 
 .support-heart {
-    color: #e25555;
+    color: #ff6b6b;
 }
 
 /* Keep the nav/header pinned to the top while scrolling */
@@ -131,4 +174,1057 @@ html[data-theme="dark"] .entry-cover--themed .cover-dark {
     background: var(--tertiary);
     color: var(--primary) !important;
     transform: translateY(-1px);
+}
+
+/* ============================================================
+   Custom homepage (layouts/index.html)
+   ============================================================ */
+.home {
+    display: flex;
+    flex-direction: column;
+    gap: 4rem;
+    padding-bottom: 2rem;
+}
+
+/* --- Hero --- */
+.hero {
+    display: grid;
+    grid-template-columns: 1.4fr 0.9fr;
+    align-items: center;
+    gap: 2.5rem;
+    padding-top: 1.5rem;
+}
+
+.hero-title {
+    font-size: clamp(2rem, 4.5vw, 3rem);
+    line-height: 1.12;
+    letter-spacing: -0.02em;
+    margin: 0 0 1rem;
+}
+
+.hero-title .accent {
+    color: var(--accent);
+}
+
+.hero-sub {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    color: var(--secondary);
+    margin: 0 0 1.25rem;
+    max-width: 46ch;
+}
+
+.hero-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin: 0 0 1.75rem;
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 0.8rem;
+}
+
+.hero-meta span {
+    padding: 0.25rem 0.6rem;
+    border-radius: 6px;
+    background: var(--brand-soft);
+    color: var(--accent);
+    font-weight: 600;
+}
+
+.hero-cta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+}
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.6rem 1.25rem;
+    border-radius: 999px;
+    font-weight: 600;
+    font-size: 0.92rem;
+    text-decoration: none;
+    border: 1px solid transparent;
+    transition: transform 0.15s ease, opacity 0.15s ease, background 0.15s ease;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+}
+
+.btn-primary {
+    background: var(--brand);
+    color: var(--brand-contrast);
+}
+
+.btn-primary:hover {
+    background: var(--accent-hover);
+}
+
+.btn-ghost {
+    background: transparent;
+    color: var(--primary);
+    border-color: var(--border);
+}
+
+.btn-ghost:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+}
+
+.hero-portrait {
+    justify-self: center;
+}
+
+.hero-portrait img {
+    width: 230px;
+    height: 230px;
+    object-fit: cover;
+    border-radius: 24px;
+    border: 1px solid var(--border);
+    box-shadow: 0 18px 40px -20px rgba(85, 89, 167, 0.55);
+}
+
+/* --- Section scaffolding --- */
+.section-head {
+    margin-bottom: 1.5rem;
+}
+
+.eyebrow {
+    display: inline-block;
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.35rem;
+}
+
+.section-head h2 {
+    margin: 0;
+    font-size: 1.5rem;
+    letter-spacing: -0.01em;
+}
+
+.section-head p {
+    margin: 0.4rem 0 0;
+    color: var(--secondary);
+}
+
+/* --- Featured project cards --- */
+.cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+}
+
+.card {
+    display: flex;
+    flex-direction: column;
+    padding: 1.25rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--entry);
+    transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.card:hover {
+    transform: translateY(-4px);
+    border-color: var(--accent);
+    box-shadow: 0 16px 32px -22px rgba(85, 89, 167, 0.6);
+}
+
+.card-badge {
+    align-self: flex-start;
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--accent);
+    background: var(--brand-soft);
+    padding: 0.2rem 0.5rem;
+    border-radius: 6px;
+    margin-bottom: 0.75rem;
+}
+
+.card h3 {
+    margin: 0 0 0.4rem;
+    font-size: 1.1rem;
+}
+
+.card p {
+    margin: 0 0 1rem;
+    color: var(--secondary);
+    font-size: 0.9rem;
+    line-height: 1.55;
+    flex: 1;
+}
+
+.card-links {
+    display: flex;
+    gap: 1rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.card-links a {
+    color: var(--accent);
+    text-decoration: none;
+}
+
+.card-links a:hover {
+    text-decoration: underline;
+}
+
+/* --- Stack chips --- */
+.stack {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem;
+}
+
+.stack-group {
+    padding: 1rem 1.1rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--entry);
+}
+
+.stack-group h4 {
+    margin: 0 0 0.6rem;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--secondary);
+}
+
+.chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+}
+
+.chips span {
+    font-size: 0.8rem;
+    padding: 0.2rem 0.55rem;
+    border-radius: 999px;
+    background: rgba(128, 128, 128, 0.1);
+    color: var(--primary);
+}
+
+/* --- Connect --- */
+.connect {
+    text-align: center;
+    padding: 2.5rem 1.5rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--brand-soft);
+}
+
+.connect h2 {
+    margin: 0 0 0.5rem;
+    font-size: 1.6rem;
+}
+
+.connect p {
+    margin: 0 auto 1.5rem;
+    max-width: 52ch;
+    color: var(--secondary);
+    line-height: 1.6;
+}
+
+.connect .hero-cta {
+    justify-content: center;
+    margin-bottom: 0;
+}
+
+/* ============================================================
+   About page (layouts/about.html)
+   ============================================================ */
+.about-hero .eyebrow {
+    margin-bottom: 0.5rem;
+}
+
+.about-hero .hero-title {
+    margin-bottom: 0.35rem;
+}
+
+.about-role {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--accent);
+    margin: 0 0 1rem;
+}
+
+/* --- Timeline --- */
+.timeline {
+    list-style: none;
+    margin: 0;
+    padding: 0 0 0 1.25rem;
+    border-left: 2px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.timeline-item {
+    position: relative;
+}
+
+.timeline-item::before {
+    content: "";
+    position: absolute;
+    left: calc(-1.25rem - 6px);
+    top: 0.4rem;
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    background: var(--brand);
+    border: 2px solid var(--theme);
+    box-shadow: 0 0 0 3px var(--brand-soft);
+}
+
+.timeline-when {
+    display: inline-block;
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.25rem;
+}
+
+.timeline-body h4 {
+    margin: 0 0 0.25rem;
+    font-size: 1rem;
+}
+
+.timeline-org {
+    font-weight: 500;
+    color: var(--secondary);
+}
+
+.timeline-body p {
+    margin: 0;
+    color: var(--secondary);
+    font-size: 0.92rem;
+    line-height: 1.55;
+}
+
+/* --- Compact cert cards --- */
+.cards--compact {
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
+
+.cards--compact .card h3 {
+    font-size: 0.98rem;
+    margin-bottom: 0.3rem;
+}
+
+.card-by {
+    margin: 0 !important;
+    font-size: 0.82rem;
+    color: var(--secondary);
+}
+
+/* Inline "see more" link under a card grid */
+.section-more {
+    margin: 1.25rem 0 0;
+    font-size: 0.92rem;
+    font-weight: 600;
+}
+
+.section-more a {
+    color: var(--accent);
+    text-decoration: none;
+}
+
+.section-more a:hover {
+    text-decoration: underline;
+}
+
+/* --- Large language chips --- */
+.chips--lg span {
+    font-size: 0.95rem;
+    padding: 0.45rem 0.9rem;
+    border: 1px solid var(--border);
+    background: var(--entry);
+}
+
+/* ============================================================
+   Contact page (layouts/contact.html)
+   ============================================================ */
+.contact-hero {
+    max-width: 60ch;
+}
+
+.contact-hero .hero-title {
+    margin: 0.4rem 0 0.75rem;
+}
+
+.contact-hero .hero-sub {
+    max-width: none;
+}
+
+.contact-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+}
+
+.contact-card {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.1rem 1.25rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--entry);
+    text-decoration: none;
+    color: var(--primary);
+    transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.contact-card:hover {
+    transform: translateY(-3px);
+    border-color: var(--accent);
+    box-shadow: 0 16px 32px -22px rgba(85, 89, 167, 0.6);
+}
+
+.contact-card--primary {
+    background: var(--brand-soft);
+    border-color: transparent;
+}
+
+.contact-icon {
+    display: inline-flex;
+    line-height: 1;
+    flex-shrink: 0;
+    color: var(--accent);
+}
+
+.contact-icon svg {
+    width: 26px;
+    height: 26px;
+}
+
+.contact-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    min-width: 0;
+}
+
+.contact-name {
+    font-weight: 700;
+    font-size: 0.98rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.contact-tag {
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 0.6rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--accent);
+    background: var(--brand-soft);
+    padding: 0.1rem 0.4rem;
+    border-radius: 5px;
+}
+
+.contact-handle {
+    font-size: 0.85rem;
+    color: var(--secondary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.contact-arrow {
+    margin-left: auto;
+    color: var(--accent);
+    font-weight: 700;
+    opacity: 0.5;
+    transition: transform 0.15s ease, opacity 0.15s ease;
+}
+
+.contact-card:hover .contact-arrow {
+    opacity: 1;
+    transform: translateX(3px);
+}
+
+.contact-note {
+    margin: 1.5rem 0 0;
+    text-align: center;
+    color: var(--secondary);
+    font-size: 0.92rem;
+}
+
+/* ============================================================
+   List pages (Blog / Projects / Presentations)
+   ============================================================ */
+.page-header h1 {
+    letter-spacing: -0.02em;
+}
+
+.page-header .post-description {
+    max-width: 60ch;
+    color: var(--secondary);
+    line-height: 1.6;
+}
+
+/* Lift entry cards on hover, matching the home/contact card feel */
+.post-entry,
+.first-entry {
+    transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.post-entry:hover,
+.first-entry:hover {
+    transform: translateY(-3px);
+    border-color: var(--accent);
+    box-shadow: 0 16px 32px -22px rgba(85, 89, 167, 0.6);
+}
+
+/* ============================================================
+   Blog & Presentations list pages
+   (layouts/posts/list.html, layouts/presentations/list.html)
+   ============================================================ */
+.list-page {
+    padding-bottom: 2rem;
+}
+
+.list-head {
+    margin: 1.5rem 0 2rem;
+}
+
+.list-head h1 {
+    margin: 0.35rem 0 0;
+    font-size: clamp(1.8rem, 4vw, 2.6rem);
+    letter-spacing: -0.02em;
+}
+
+.list-lead {
+    margin: 0.6rem 0 0;
+    max-width: 60ch;
+    color: var(--secondary);
+    font-size: 1.05rem;
+    line-height: 1.6;
+}
+
+/* --- Blog post grid --- */
+.post-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+
+.post-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--entry);
+    transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.post-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--accent);
+    box-shadow: 0 18px 36px -24px rgba(85, 89, 167, 0.65);
+}
+
+.post-card-cover {
+    height: 150px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f4f4f5;
+    border-bottom: 1px solid var(--border);
+    overflow: hidden;
+}
+
+.post-card-cover img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    padding: 1.25rem;
+}
+
+/* The Quarkus wordmark is white — give it a dark plaque so it stays legible */
+.post-card-cover img[src*="quarkus-logo"] {
+    background: #2e2e33;
+}
+
+/* Placeholder cover for posts without an image: brand gradient + tag label */
+.post-card-ph {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+    font-weight: 700;
+    font-size: 1.15rem;
+    color: var(--brand-contrast);
+    background: linear-gradient(135deg, var(--brand) 0%, #7c80c9 100%);
+    letter-spacing: 0.02em;
+}
+
+.post-card-body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 1.1rem 1.25rem 1.25rem;
+    flex: 1;
+}
+
+.post-card-meta {
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 0.75rem;
+    color: var(--secondary);
+}
+
+.post-card-title {
+    margin: 0;
+    font-size: 1.08rem;
+    line-height: 1.3;
+    letter-spacing: -0.01em;
+}
+
+.post-card-sum {
+    margin: 0;
+    color: var(--secondary);
+    font-size: 0.9rem;
+    line-height: 1.55;
+    flex: 1;
+}
+
+.post-card-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    margin-top: 0.25rem;
+}
+
+.post-card-tags span {
+    font-size: 0.72rem;
+    padding: 0.15rem 0.5rem;
+    border-radius: 999px;
+    background: var(--brand-soft);
+    color: var(--accent);
+    font-weight: 600;
+}
+
+/* Full-card overlay link (keeps card markup clickable without nested anchors) */
+.post-card-link {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+}
+
+/* --- Presentations deck grid --- */
+.deck-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
+    gap: 1.5rem;
+}
+
+.deck-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--entry);
+    transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.deck-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--accent);
+    box-shadow: 0 18px 36px -24px rgba(85, 89, 167, 0.65);
+}
+
+/* Talk cover (logo) header on a deck card, used when a cover image is set */
+.deck-cover {
+    position: relative;
+    height: 140px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f4f4f5;
+    border-bottom: 1px solid var(--border);
+    overflow: hidden;
+}
+
+.deck-cover img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    padding: 1.5rem;
+}
+
+.deck-cover img[src*="quarkus-logo"] {
+    background: #2e2e33;
+}
+
+.deck-badge--light {
+    color: var(--accent);
+    background: #fff;
+    border-color: var(--border);
+}
+
+.deck-screen {
+    position: relative;
+    height: 140px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background:
+        radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.18), transparent 60%),
+        linear-gradient(135deg, var(--brand) 0%, #3d4080 100%);
+}
+
+/* Inline icon that scales with the surrounding text */
+.ico {
+    width: 1em;
+    height: 1em;
+    flex-shrink: 0;
+    vertical-align: -0.12em;
+}
+
+.deck-play {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.18);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    color: #fff;
+    transition: transform 0.15s ease, background 0.15s ease;
+}
+
+.deck-play svg {
+    width: 22px;
+    height: 22px;
+    margin-left: 2px;
+}
+
+.deck-card:hover .deck-play {
+    transform: scale(1.08);
+    background: rgba(255, 255, 255, 0.28);
+}
+
+.deck-dots {
+    position: absolute;
+    top: 0.85rem;
+    left: 0.95rem;
+    display: flex;
+    gap: 0.35rem;
+}
+
+.deck-dots i {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.45);
+}
+
+.deck-body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 1.1rem 1.25rem 1.25rem;
+    flex: 1;
+}
+
+.deck-cta {
+    margin-top: 0.4rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--accent);
+}
+
+.deck-badge {
+    position: absolute;
+    top: 0.7rem;
+    right: 0.8rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: #fff;
+    background: rgba(0, 0, 0, 0.28);
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    padding: 0.18rem 0.5rem;
+    border-radius: 999px;
+}
+
+/* ============================================================
+   Presentation single page (layouts/presentations/single.html)
+   ============================================================ */
+.presentation {
+    display: flex;
+    flex-direction: column;
+    gap: 3rem;
+    padding-bottom: 2rem;
+}
+
+.presentation-hero {
+    padding-top: 1rem;
+}
+
+.back-link {
+    display: inline-block;
+    margin-bottom: 1.25rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--secondary);
+    text-decoration: none;
+    transition: color 0.15s ease;
+}
+
+.back-link:hover {
+    color: var(--accent);
+}
+
+.presentation-hero .hero-title {
+    font-size: clamp(1.8rem, 4vw, 2.75rem);
+    margin: 0.4rem 0 0.75rem;
+}
+
+.presentation-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 0.8rem;
+    color: var(--secondary);
+    margin-bottom: 1rem;
+}
+
+.meta-rec {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    color: var(--accent);
+    font-weight: 700;
+}
+
+.presentation-hero .hero-sub {
+    max-width: 60ch;
+    margin-bottom: 1.25rem;
+}
+
+.presentation-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-bottom: 1.5rem;
+}
+
+.presentation-tags span {
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.2rem 0.6rem;
+    border-radius: 6px;
+    background: var(--brand-soft);
+    color: var(--accent);
+}
+
+.presentation-section {
+    margin: 0;
+}
+
+/* Responsive 16:9 video embed */
+.video-embed {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    border-radius: var(--radius);
+    overflow: hidden;
+    border: 1px solid var(--border);
+    box-shadow: 0 18px 40px -24px rgba(85, 89, 167, 0.6);
+    background: #000;
+}
+
+.video-embed iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+}
+
+.presentation-launch {
+    margin-top: 0;
+}
+
+.presentation-footer {
+    margin-top: 0;
+}
+
+/* Hero with a talk cover: text on the left, logo plaque on the right */
+.presentation-hero.has-cover {
+    display: grid;
+    grid-template-columns: 1.5fr 0.85fr;
+    gap: 2.5rem;
+    align-items: center;
+}
+
+.presentation-cover {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 220px;
+    padding: 1.5rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: #f4f4f5;
+    box-shadow: 0 18px 40px -24px rgba(85, 89, 167, 0.55);
+}
+
+.presentation-cover img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+.presentation-cover img[src*="quarkus-logo"] {
+    background: #2e2e33;
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+}
+
+/* --- Dark-mode cover plaque (logos that are transparent/dark stay legible) --- */
+html[data-theme="dark"] .post-card-cover {
+    background: #f4f4f5;
+}
+
+/* --- Responsive --- */
+@media (max-width: 768px) {
+    /* Stack the header so the menu wraps onto its own line(s) instead of
+       scrolling off-screen (PaperMod default = horizontal overflow). */
+    .nav {
+        flex-direction: column;
+        align-items: stretch;
+        line-height: 1.4;
+        /* Horizontal inset lives here (not as child margins) so children can
+           use the full content width without overflowing the viewport. */
+        padding: 0.55rem var(--gap) 0.4rem;
+    }
+    .logo {
+        margin: 0;
+        justify-content: space-between;
+    }
+    #menu {
+        flex-wrap: wrap;
+        justify-content: center;
+        white-space: normal;
+        overflow-x: visible;
+        column-gap: 0.9rem;
+        row-gap: 0.15rem;
+        margin: 0.4rem 0 0;
+        padding: 0;
+    }
+    #menu li + li {
+        margin-inline-start: 0;
+    }
+    /* Anchor offset must account for the now-taller stacked header */
+    :target,
+    .post-content h1[id],
+    .post-content h2[id],
+    .post-content h3[id],
+    .post-content h4[id] {
+        scroll-margin-top: 7rem;
+    }
+
+    /* Hero */
+    .hero {
+        grid-template-columns: 1fr;
+        text-align: center;
+        gap: 1.5rem;
+    }
+    .hero-title {
+        font-size: clamp(1.6rem, 7vw, 2.2rem);
+    }
+    .hero-portrait {
+        order: -1;
+    }
+    .hero-portrait img {
+        width: 150px;
+        height: 150px;
+    }
+    .hero-sub,
+    .connect p {
+        margin-left: auto;
+        margin-right: auto;
+    }
+    .hero-meta,
+    .hero-cta {
+        justify-content: center;
+    }
+    .home {
+        gap: 3rem;
+    }
+    .cards {
+        grid-template-columns: 1fr;
+    }
+
+    /* Wide tables (About, Floci comparison) scroll instead of overflowing */
+    .post-content table {
+        display: block;
+        max-width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    /* About + Contact */
+    .contact-grid {
+        grid-template-columns: 1fr;
+    }
+    .contact-hero {
+        text-align: center;
+    }
+    .contact-hero .hero-sub {
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    /* Blog + Presentations lists go single-column on narrow screens */
+    .post-grid,
+    .deck-grid {
+        grid-template-columns: 1fr;
+    }
+
+    /* Presentation hero with a cover stacks, cover on top */
+    .presentation-hero.has-cover {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+    .presentation-cover {
+        order: -1;
+        height: 170px;
+    }
 }

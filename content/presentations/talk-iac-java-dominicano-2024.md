@@ -1,9 +1,11 @@
 ---
-title: "Infrastructure as Code (IaC) for Everyone - Java Dominicano"
+title: "Infrastructure as Code (IaC) for Everyone"
 date: 2024-10-01
 description: "A summary of the talk presented at the Java Dominicano Monthly Talks (October 2024) on democratizing Infrastructure as Code, exploring how any developer can benefit from automation."
 tags: ["iac", "opentofu", "pulumi", "ansible", "java-dominicano", "talk"]
 author: "Hector Ventura"
+event: "Java Dominicano"
+aliases: ["/posts/talk-iac-java-dominicano-2024/"]
 cover:
   image: "/images/iac-hero-java.png"
   alt: "Infrastructure as Code Concept Image"

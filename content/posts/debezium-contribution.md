@@ -36,5 +36,5 @@ If you're working with databases and haven't explored the possibilities of data 
 
 ### Resources
 - [Debezium Official Site](https://debezium.io/)
-- [Real-Time Data Streaming with Postgres and Debezium (Upcoming Talk)]({{< relref "/posts/talk-postgres-debezium-2026" >}})
+- [Real-Time Data Streaming with Postgres and Debezium (Talk)]({{< relref "/presentations/2026-debezium" >}})
 - [My Journey with Quarkus]({{< relref "/posts/quarkus-early-contribution" >}})

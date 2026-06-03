@@ -1,0 +1,176 @@
+{{- define "main" }}
+{{- $email := site.Params.email }}
+{{- $linkedin := "https://linkedin.com/in/hectorvent" }}
+
+<div class="home about">
+
+  {{/* ---------- Hero ---------- */}}
+  <section class="hero about-hero">
+    <div class="hero-text">
+      <span class="eyebrow">About</span>
+      <h1 class="hero-title">Hector Ventura</h1>
+      <p class="about-role">Lead Software Engineer &middot; Backend &amp; real-time systems</p>
+      <p class="hero-sub">
+        Based in <strong>McKinney, Texas</strong>, with 18+ years building backend
+        systems, distributed services, and cloud-native applications. Creator of the
+        <a href="https://floci.io" rel="noopener">Floci</a> local cloud emulators.
+      </p>
+      <div class="hero-cta">
+        {{- with $email }}<a class="btn btn-primary" href="mailto:{{ . }}">Email me</a>{{ end }}
+        <a class="btn btn-ghost" href="{{ $linkedin }}" rel="noopener">LinkedIn</a>
+        <a class="btn btn-ghost" href="https://floci.io" rel="noopener">Explore Floci</a>
+      </div>
+      {{- partial "social_icons.html" (dict "align" "left") }}
+    </div>
+    <div class="hero-portrait">
+      <img src="/images/hector_perfile.png" width="230" height="230"
+           alt="Hector Ventura" loading="eager" />
+    </div>
+  </section>
+
+  {{/* ---------- What I do ---------- */}}
+  {{- $stack := slice
+      (dict "label" "Languages"      "items" (slice "Java" "Shell"))
+      (dict "label" "Frameworks"     "items" (slice "Quarkus" "Vert.x" "Spring Boot" "Jakarta EE"))
+      (dict "label" "Cloud & infra"  "items" (slice "Cloud" "Containers" "Terraform" "Ansible" "Docker" "Podman" "Buildah" "Skopeo"))
+      (dict "label" "VoIP / Telecom" "items" (slice "FreeSwitch" "Asterisk" "Kamailio"))
+      (dict "label" "Data & streaming" "items" (slice "PostgreSQL" "MongoDB" "MySQL" "DynamoDB" "Debezium" "Kafka" "Pentaho"))
+  }}
+  <section class="home-section">
+    <div class="section-head">
+      <span class="eyebrow">What I do</span>
+      <h2>Cloud-native backends &amp; real-time comms</h2>
+      <p>
+        My core stack is Java on Quarkus, Vert.x, Spring Boot, and Jakarta EE, running in
+        containers and deployed to the cloud. Alongside that, I have deep VoIP and
+        telecom experience. The blend of cloud-native development and real-time
+        communications is where I'm most at home.
+      </p>
+    </div>
+    <div class="stack">
+      {{- range $stack }}
+      <div class="stack-group">
+        <h4>{{ .label }}</h4>
+        <div class="chips">
+          {{- range .items }}<span>{{ . }}</span>{{ end }}
+        </div>
+      </div>
+      {{- end }}
+    </div>
+  </section>
+
+  {{/* ---------- Open source ---------- */}}
+  {{- $projects := slice
+      (dict "badge" "AWS"   "name" "Floci"     "desc" "A drop-in LocalStack replacement emulating 47 AWS services on port 4566." "repo" "https://github.com/floci-io/floci"    "site" "https://floci.io")
+      (dict "badge" "Azure" "name" "Floci-Az"  "desc" "The Azure companion: Blob, Queue & Table Storage, Functions, Key Vault, Event Hubs, and Service Bus." "repo" "https://github.com/floci-io/floci-az" "site" "")
+      (dict "badge" "GCP"   "name" "Floci-GCP" "desc" "The Google Cloud companion: Cloud Storage, Pub/Sub, Firestore, Datastore, Secret Manager, IAM, and Managed Kafka." "repo" "https://github.com/floci-io/floci-gcp" "site" "")
+  }}
+  <section class="home-section">
+    <div class="section-head">
+      <span class="eyebrow">Open source</span>
+      <h2>I build tools I actually need</h2>
+      <p>
+        Free, MIT-licensed, built with Quarkus and compiled to native binaries with GraalVM.
+        Each starts in ~24 ms and idles around 13 MiB. I'm also a
+        <a href="https://quarkus.io/1000contributors/" rel="noopener">Quarkus 1,000 Contributor</a>
+        and have contributed to <a href="https://debezium.io/" rel="noopener">Debezium</a> and
+        <a href="https://vertx.io/" rel="noopener">Eclipse Vert.x</a>.
+      </p>
+    </div>
+    <div class="cards">
+      {{- range $projects }}
+      <article class="card">
+        <span class="card-badge">{{ .badge }}</span>
+        <h3>{{ .name }}</h3>
+        <p>{{ .desc }}</p>
+        <div class="card-links">
+          <a href="{{ .repo }}" rel="noopener">GitHub →</a>
+          {{- with .site }}<a href="{{ . }}" rel="noopener">Website →</a>{{ end }}
+        </div>
+      </article>
+      {{- end }}
+    </div>
+    <p class="section-more">
+      <a href="/projects/">Browse the full project write-ups, including the TelePulse real-time telephony platform →</a>
+    </p>
+  </section>
+
+  {{/* ---------- Community & teaching ---------- */}}
+  {{- $timeline := slice
+      (dict "when" "2007 to 2012" "title" "Linux Administration Instructor" "org" "Fundación Código Libre Dominicano" "desc" "Taught Linux fundamentals and advanced server administration: LDAP, DNS (Bind), Apache, SAMBA, Cron, and Kerberos.")
+      (dict "when" "2017 to 2020" "title" "Java Tutor" "org" "ITLA · Santiago" "desc" "Tutored the next generation of developers at the Instituto Tecnológico de las Américas.")
+      (dict "when" "Years active" "title" "Core member, talks & workshops" "org" "Java Dominicano" "desc" "A long-time contributor through talks and workshops; still returning for events like JConf Dominicana.")
+      (dict "when" "Now" "title" "Active member" "org" "Postgres MetroPlex Dallas" "desc" "Part of the DFW Postgres community since relocating to Texas.")
+  }}
+  <section class="home-section">
+    <div class="section-head">
+      <span class="eyebrow">Community &amp; teaching</span>
+      <h2>Sharing what I learn</h2>
+    </div>
+    <ol class="timeline">
+      {{- range $timeline }}
+      <li class="timeline-item">
+        <span class="timeline-when">{{ .when }}</span>
+        <div class="timeline-body">
+          <h4>{{ .title }} <span class="timeline-org">· {{ .org }}</span></h4>
+          <p>{{ .desc }}</p>
+        </div>
+      </li>
+      {{- end }}
+    </ol>
+  </section>
+
+  {{/* ---------- Education & certifications ---------- */}}
+  {{- $certs := slice
+      (dict "name" "Containers, Kubernetes & Istio on IBM Cloud" "by" "IBM · 2020")
+      (dict "name" "IBM Cloud Kubernetes Service" "by" "IBM · 2020")
+      (dict "name" "MongoDB for Java Developers" "by" "MongoDB University · 2014")
+      (dict "name" "MongoDB for Developers" "by" "MongoDB University · 2014")
+      (dict "name" "MongoDB for DBAs" "by" "MongoDB University · 2014")
+  }}
+  <section class="home-section">
+    <div class="section-head">
+      <span class="eyebrow">Education &amp; certifications</span>
+      <h2>Credentials</h2>
+      <p>
+        <strong>B.Sc. Computer Science</strong>, Universidad Autónoma de Santo Domingo (2007 to 2013).
+      </p>
+    </div>
+    <div class="cards cards--compact">
+      {{- range $certs }}
+      <article class="card">
+        <h3>{{ .name }}</h3>
+        <p class="card-by">{{ .by }}</p>
+      </article>
+      {{- end }}
+    </div>
+  </section>
+
+  {{/* ---------- Languages ---------- */}}
+  <section class="home-section">
+    <div class="section-head">
+      <span class="eyebrow">Languages</span>
+      <h2>How we can talk</h2>
+    </div>
+    <div class="chips chips--lg">
+      <span>🇩🇴 Spanish: Native</span>
+      <span>🇺🇸 English: Full professional</span>
+    </div>
+  </section>
+
+  {{/* ---------- Connect ---------- */}}
+  <section class="connect">
+    <h2>Let's connect</h2>
+    <p>
+      Open to consulting, collaboration, and speaking: backend architecture, a
+      tricky VoIP system, or Floci itself. I read every message.
+    </p>
+    <div class="hero-cta">
+      {{- with $email }}<a class="btn btn-primary" href="mailto:{{ . }}">Email me</a>{{ end }}
+      <a class="btn btn-ghost" href="{{ $linkedin }}" rel="noopener">LinkedIn</a>
+      <a class="btn btn-ghost" href="/contact/">All contact options</a>
+    </div>
+  </section>
+
+</div>
+{{- end }}

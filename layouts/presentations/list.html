@@ -1,0 +1,47 @@
+{{- define "main" }}
+<div class="list-page">
+
+  <header class="list-head">
+    <span class="eyebrow">Presentations</span>
+    <h1>{{ .Title }}</h1>
+    {{- with .Description }}<p class="list-lead">{{ . | markdownify }}</p>{{- end }}
+  </header>
+
+  {{- $pages := .RegularPages.ByDate.Reverse }}
+  <div class="deck-grid">
+    {{- range $pages }}
+    {{- $cover := .Params.cover.image }}
+    <article class="deck-card{{ if $cover }} has-cover{{ end }}">
+      {{- if $cover }}
+      <div class="deck-cover">
+        <img src="{{ $cover }}" loading="lazy" alt="{{ .Title | plainify }}">
+        {{- if .Params.youtube }}<span class="deck-badge deck-badge--light"><svg class="ico" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>Recording</span>{{ end }}
+      </div>
+      {{- else }}
+      <div class="deck-screen" aria-hidden="true">
+        <span class="deck-dots"><i></i><i></i><i></i></span>
+        {{- if .Params.youtube }}<span class="deck-badge"><svg class="ico" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>Recording</span>{{ end }}
+        <span class="deck-play"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></span>
+      </div>
+      {{- end }}
+      <div class="deck-body">
+        <div class="post-card-meta">
+          <time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "Jan 2, 2006" }}</time>
+          {{- with .Params.event }} <span aria-hidden="true">·</span> {{ . }}{{ end }}
+        </div>
+        <h3 class="post-card-title">{{ .Title }}</h3>
+        {{- with .Description }}<p class="post-card-sum">{{ . }}</p>{{- end }}
+        {{- with .Params.tags }}
+        <div class="post-card-tags">
+          {{- range first 4 . }}<span>#{{ . }}</span>{{ end }}
+        </div>
+        {{- end }}
+        <span class="deck-cta">{{ if .Params.deck }}View presentation →{{ else }}View talk →{{ end }}</span>
+      </div>
+      <a class="post-card-link" href="{{ .Permalink }}" aria-label="View: {{ .Title | plainify }}"></a>
+    </article>
+    {{- end }}
+  </div>
+
+</div>
+{{- end }}

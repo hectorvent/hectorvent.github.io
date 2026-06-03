@@ -12,6 +12,7 @@
     :root {
       --pg-blue:      #2f6fa8;
       --pg-light:     #4a9fd4;
+      --brand:        #5559a7;
       --pg-dark:      #1d4e7a;
       --kafka-orange: #d4621a;
       --green:        #1e7e34;
@@ -72,7 +73,7 @@
     /* ─── PROGRESS ─── */
     .progress-bar {
       position: fixed; top: 0; left: 0; height: 4px; z-index: 200;
-      background: linear-gradient(90deg, var(--pg-blue), var(--kafka-orange));
+      background: linear-gradient(90deg, var(--brand), var(--pg-light));
       transition: width 0.4s ease;
     }
 
@@ -114,7 +115,7 @@
     .slide-label {
       font-size: 14px; font-weight: 700;
       letter-spacing: 0.12em; text-transform: uppercase;
-      color: var(--pg-blue); margin-bottom: 8px;
+      color: var(--brand); margin-bottom: 8px;
     }
 
     .slide-heading {
@@ -125,7 +126,7 @@
 
     .divider {
       width: 52px; height: 4px; border-radius: 2px;
-      background: linear-gradient(90deg, var(--pg-blue), var(--kafka-orange));
+      background: linear-gradient(90deg, var(--brand), var(--pg-light));
       margin-bottom: 20px;
     }
 
@@ -1226,7 +1227,7 @@
       <p class="qa-sub">Thanks for joining — let's talk Postgres, Debezium &amp; event-driven data!</p>
 
       <div class="qa-links">
-        <a class="qa-link" href="https://hectorvent.dev" target="_blank">🌐 hectorvent.dev</a>
+        <a class="qa-link" href="/" target="_blank">🌐 hectorvent.dev</a>
         <a class="qa-link" href="https://debezium.io/documentation/reference/stable/connectors/postgresql.html" target="_blank">📖 Debezium Docs</a>
         <a class="qa-link" href="https://www.postgresql.org/docs/current/logicaldecoding.html" target="_blank">🐘 PG Logical Decoding</a>
         <a class="qa-link" href="https://github.com/hectorvent" target="_blank">🐙 github.com/hectorvent</a>

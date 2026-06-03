@@ -1,0 +1,136 @@
+{{- define "main" }}
+{{- $email := site.Params.email }}
+{{- $linkedin := "https://linkedin.com/in/hectorvent" }}
+
+<div class="home">
+
+  {{/* ---------- Hero ---------- */}}
+  <section class="hero">
+    <div class="hero-text">
+      <h1 class="hero-title">
+        Backend &amp; real-time systems engineer.<br>
+        I build <span class="accent">fast, free cloud-native tools.</span>
+      </h1>
+      <p class="hero-sub">
+        Lead Software Engineer with 18+ years shipping backend services, distributed
+        systems, and VoIP platforms. Creator of
+        <a href="https://floci.io">Floci</a>, a suite of local cloud emulators.
+      </p>
+      <div class="hero-meta">
+        <span>18+ yrs</span><span>Java</span><span>Quarkus</span><span>Vert.x</span><span>VoIP</span><span>Cloud-native</span>
+      </div>
+      <div class="hero-cta">
+        <a class="btn btn-primary" href="https://floci.io" rel="noopener">Explore Floci →</a>
+        <a class="btn btn-ghost" href="/posts/">Read the blog</a>
+        <a class="btn btn-ghost" href="/contact/">Let's talk</a>
+      </div>
+      {{- partial "social_icons.html" (dict "align" "left") }}
+    </div>
+    <div class="hero-portrait">
+      <img src="/images/hector_perfile.png" width="230" height="230"
+           alt="Hector Ventura" loading="eager" />
+    </div>
+  </section>
+
+  {{/* ---------- Featured open source ---------- */}}
+  {{- $projects := slice
+      (dict "badge" "AWS"   "name" "Floci"     "desc" "A drop-in LocalStack replacement emulating 47 AWS services on port 4566. Native binary, ~24 ms cold start, ~13 MiB idle." "repo" "https://github.com/floci-io/floci"    "site" "https://floci.io")
+      (dict "badge" "Azure" "name" "Floci-Az"  "desc" "The Azure companion, covering Blob, Queue & Table Storage, Functions, Key Vault, Event Hubs, and Service Bus on port 4577."          "repo" "https://github.com/floci-io/floci-az" "site" "")
+      (dict "badge" "GCP"   "name" "Floci-GCP" "desc" "The Google Cloud companion, covering Cloud Storage, Pub/Sub, Firestore, Datastore, Secret Manager, IAM, and Managed Kafka on port 4588." "repo" "https://github.com/floci-io/floci-gcp" "site" "")
+  }}
+  <section class="home-section">
+    <div class="section-head">
+      <span class="eyebrow">Featured open source</span>
+      <h2>The Floci family</h2>
+      <p>Free, MIT-licensed cloud emulators that run with no accounts, auth tokens, or usage limits.</p>
+    </div>
+    <div class="cards">
+      {{- range $projects }}
+      <article class="card">
+        <span class="card-badge">{{ .badge }}</span>
+        <h3>{{ .name }}</h3>
+        <p>{{ .desc }}</p>
+        <div class="card-links">
+          <a href="{{ .repo }}" rel="noopener">GitHub →</a>
+          {{- with .site }}<a href="{{ . }}" rel="noopener">Website →</a>{{ end }}
+        </div>
+      </article>
+      {{- end }}
+    </div>
+  </section>
+
+  {{/* ---------- Support open source ---------- */}}
+  {{- with site.Params.sponsor }}
+  <section class="support-section">
+    <span class="eyebrow">Support open source</span>
+    <h2 class="support-title">Help keep Floci free forever</h2>
+    {{- with .text }}<p class="support-text">{{ . | markdownify }}</p>{{- end }}
+    {{- with .links }}
+    <div class="support-buttons">
+      {{- range . }}
+      <a class="support-button" href="{{ trim .url " " }}" rel="noopener" target="_blank" title="{{ .name }}">
+        <span class="support-heart" aria-hidden="true">&hearts;</span>{{ .name }}
+      </a>
+      {{- end }}
+    </div>
+    {{- end }}
+  </section>
+  {{- end }}
+
+  {{/* ---------- Stack ---------- */}}
+  {{- $stack := slice
+      (dict "label" "Languages"      "items" (slice "Java" "Shell"))
+      (dict "label" "Frameworks"     "items" (slice "Quarkus" "Vert.x" "Spring Boot" "Jakarta EE"))
+      (dict "label" "Cloud & infra"  "items" (slice "Cloud" "Containers" "Terraform" "Ansible" "Docker" "Podman"))
+      (dict "label" "VoIP / Telecom" "items" (slice "FreeSwitch" "Asterisk" "Kamailio"))
+      (dict "label" "Data"           "items" (slice "PostgreSQL" "MongoDB" "DynamoDB" "Debezium" "Kafka"))
+  }}
+  <section class="home-section">
+    <div class="section-head">
+      <span class="eyebrow">Toolbox</span>
+      <h2>What I work with</h2>
+    </div>
+    <div class="stack">
+      {{- range $stack }}
+      <div class="stack-group">
+        <h4>{{ .label }}</h4>
+        <div class="chips">
+          {{- range .items }}<span>{{ . }}</span>{{ end }}
+        </div>
+      </div>
+      {{- end }}
+    </div>
+  </section>
+
+  {{/* ---------- Speaking & community ---------- */}}
+  <section class="home-section">
+    <div class="section-head">
+      <span class="eyebrow">Speaking &amp; community</span>
+      <h2>Talks, workshops &amp; contributions</h2>
+      <p>
+        Quarkus 1,000 Contributor, with talks at JConf Dominicana and Java Dominicano.
+        Active in the Postgres MetroPlex Dallas community.
+      </p>
+    </div>
+    <div class="hero-cta">
+      <a class="btn btn-ghost" href="/presentations/">View presentations</a>
+      <a class="btn btn-ghost" href="/about/">More about me</a>
+    </div>
+  </section>
+
+  {{/* ---------- Let's connect ---------- */}}
+  <section class="connect">
+    <h2>Let's connect</h2>
+    <p>
+      Open to consulting, collaboration, and speaking. Whether it's a backend
+      architecture, a tricky VoIP system, or Floci itself. I read every message.
+    </p>
+    <div class="hero-cta">
+      {{- with $email }}<a class="btn btn-primary" href="mailto:{{ . }}">Email me</a>{{ end }}
+      <a class="btn btn-ghost" href="{{ $linkedin }}" rel="noopener">LinkedIn</a>
+      <a class="btn btn-ghost" href="/contact/">All contact options</a>
+    </div>
+  </section>
+
+</div>
+{{- end }}

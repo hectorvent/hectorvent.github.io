@@ -4,6 +4,8 @@ date: 2019-07-01
 description: "A talk given at JConf Dominicana 2019 introducing Quarkus, the Kubernetes-native Java stack built on GraalVM and OpenJDK, unifying imperative and reactive programming with blazing-fast startup times and minimal memory footprint."
 tags: ["java", "quarkus", "graalvm", "kubernetes", "microservices", "talk"]
 author: "Hector Ventura"
+event: "JConf Dominicana"
+aliases: ["/posts/talk-quarkus-jconf-dominicana-2019/"]
 cover:
   image: "/images/quarkus-logo.png"
   alt: "Quarkus - Supersonic Subatomic Java"

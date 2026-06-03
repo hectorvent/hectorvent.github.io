@@ -13,6 +13,7 @@
       --java-orange:  #ed8b00;
       --quarkus-blue: #4695eb;
       --debezium-red: #ff004a;
+      --brand:        #5559a7;
       --pg-blue:      #336791;
       
       --pg-light:     #4a9fd4;
@@ -33,7 +34,7 @@
       --text-sub:     #3d4a5c;
       --text-muted:   #6b7a8e;
 
-      --accent:       var(--quarkus-blue);
+      --accent:       var(--brand);
     }
 
     html, body {
@@ -79,7 +80,7 @@
     /* ─── PROGRESS ─── */
     .progress-bar {
       position: fixed; top: 0; left: 0; height: 4px; z-index: 200;
-      background: linear-gradient(90deg, var(--java-orange), var(--quarkus-blue), var(--debezium-red), var(--pg-blue));
+      background: linear-gradient(90deg, var(--java-orange), var(--brand), var(--debezium-red), var(--pg-blue));
       transition: width 0.4s ease;
     }
 
@@ -121,7 +122,7 @@
     .slide-label {
       font-size: 14px; font-weight: 700;
       letter-spacing: 0.12em; text-transform: uppercase;
-      color: var(--quarkus-blue); margin-bottom: 8px;
+      color: var(--brand); margin-bottom: 8px;
     }
 
     .slide-heading {
@@ -132,7 +133,7 @@
 
     .divider {
       width: 52px; height: 4px; border-radius: 2px;
-      background: linear-gradient(90deg, var(--java-orange), var(--quarkus-blue));
+      background: linear-gradient(90deg, var(--java-orange), var(--brand));
       margin-bottom: 20px;
     }
 
@@ -201,7 +202,7 @@
       display: inline-flex; align-items: center; gap: 8px;
       background: rgba(70,149,235,0.1); border: 1px solid rgba(70,149,235,0.3);
       border-radius: 24px; padding: 8px 18px;
-      font-size: 14px; font-weight: 600; color: var(--quarkus-blue);
+      font-size: 14px; font-weight: 600; color: var(--brand);
       margin-bottom: 36px; letter-spacing: 0.02em;
     }
 
@@ -211,7 +212,7 @@
       margin-bottom: 28px; color: var(--text);
     }
     .title-main .hl-java { color: var(--java-orange); }
-    .title-main .hl-q    { color: var(--quarkus-blue); }
+    .title-main .hl-q    { color: var(--brand); }
     .title-main .hl-dbz  { color: var(--debezium-red); }
 
     .title-sub {
@@ -228,7 +229,7 @@
 
     .avatar {
       width: 50px; height: 50px; border-radius: 50%; flex-shrink: 0;
-      background: linear-gradient(135deg, var(--java-orange), var(--quarkus-blue));
+      background: linear-gradient(135deg, var(--java-orange), var(--brand));
       display: flex; align-items: center; justify-content: center;
       color: white; font-weight: 800; font-size: 18px;
     }
@@ -248,7 +249,7 @@
     .about-avatar-col { text-align: center; display: flex; flex-direction: column; align-items: center; }
     .about-avatar {
       width: 160px; height: 160px; border-radius: 40px;
-      background: linear-gradient(135deg, var(--java-orange), var(--quarkus-blue));
+      background: linear-gradient(135deg, var(--java-orange), var(--brand));
       margin-bottom: 24px; display: flex; align-items: center; justify-content: center;
       color: white; font-weight: 900; font-size: 64px; box-shadow: 0 10px 30px rgba(70,149,235,0.25);
     }
@@ -278,11 +279,11 @@
       border-radius: 16px; padding: 24px; display: flex; gap: 20px; align-items: center;
       transition: transform 0.2s, border-color 0.2s;
     }
-    .agenda-item:hover { transform: translateY(-3px); border-color: var(--quarkus-blue); }
+    .agenda-item:hover { transform: translateY(-3px); border-color: var(--brand); }
     .agenda-num {
       width: 48px; height: 48px; border-radius: 12px; background: var(--surface2);
       display: flex; align-items: center; justify-content: center;
-      font-size: 20px; font-weight: 800; color: var(--quarkus-blue); flex-shrink: 0;
+      font-size: 20px; font-weight: 800; color: var(--brand); flex-shrink: 0;
     }
     .agenda-text h3 { font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
     .agenda-text p { font-size: 14px; color: var(--text-muted); line-height: 1.5; }
@@ -320,7 +321,7 @@
     .arch-box-compound { flex: 1; height: 110px; border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 10px; border: 2px dashed var(--border); background: var(--surface2); }
     .hl-pg { background: #e0eef8; border-color: #336791; color: #336791; }
     .hl-deb { background: #fdeede; border-color: var(--java-orange); color: var(--java-orange); }
-    .hl-q { background: #e0f2fe; border-color: var(--quarkus-blue); color: var(--quarkus-blue); }
+    .hl-q { background: #e0f2fe; border-color: var(--brand); color: var(--brand); }
     .hl-java { background: #fff7ed; border-color: var(--java-orange); color: var(--java-orange); }
     .hl-kafka { background: #fef2f2; border-color: #dc2626; color: #dc2626; }
     .hl-sink { background: #f3f4f6; border-color: #374151; color: #374151; }
@@ -337,7 +338,7 @@
     .inner-pills { display: flex; gap: 6px; margin-top: 8px; }
     .inner-pill { font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 4px; text-transform: uppercase; }
     .pill-deb { background: var(--debezium-red); color: white; }
-    .pill-app { background: var(--quarkus-blue); color: white; }
+    .pill-app { background: var(--brand); color: white; }
 
     /* ══════════════════════════════════════
        SLIDE 6 — DEBEZIUM
@@ -354,7 +355,7 @@
     .setup-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; padding: 0 40px 40px; flex: 1; }
     .setup-step { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 14px; }
     .setup-step-header { display: flex; align-items: center; gap: 12px; font-size: 15px; font-weight: 700; color: var(--text); }
-    .step-num { width: 28px; height: 28px; border-radius: 50%; background: var(--quarkus-blue); color: white; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
+    .step-num { width: 28px; height: 28px; border-radius: 50%; background: var(--brand); color: white; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
 
     /* ══════════════════════════════════════
        SLIDE 8 — USE CASES
@@ -398,11 +399,11 @@
     .slide-qa { background: linear-gradient(150deg, #e8f2fb 0%, #f8f9fa 45%, #fef2e8 100%); justify-content: center; align-items: center; text-align: center; }
     .slide-qa .grid-bg { position: absolute; inset: 0; pointer-events: none; background-image: linear-gradient(var(--border-light) 1px, transparent 1px), linear-gradient(90deg, var(--border-light) 1px, transparent 1px); background-size: 64px 64px; mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 20%, transparent 100%); }
     .qa-content { position: relative; z-index: 1; max-width: 680px; padding: 40px; }
-    .qa-big { font-size: clamp(4rem, 9vw, 7rem); font-weight: 900; letter-spacing: -0.04em; line-height: 1; margin-bottom: 16px; background: linear-gradient(135deg, var(--java-orange), var(--quarkus-blue)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .qa-big { font-size: clamp(4rem, 9vw, 7rem); font-weight: 900; letter-spacing: -0.04em; line-height: 1; margin-bottom: 16px; background: linear-gradient(135deg, var(--java-orange), var(--brand)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
     .qa-sub { font-size: 1.15rem; color: var(--text-sub); margin-bottom: 40px; line-height: 1.6; }
     .qa-links { display: flex; flex-wrap: wrap; gap: 14px; justify-content: center; }
     .qa-link { display: flex; align-items: center; gap: 10px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 13px 22px; font-size: 15px; color: var(--text-sub); text-decoration: none; font-weight: 500; box-shadow: 0 2px 8px rgba(0,0,0,0.06); transition: box-shadow 0.15s, border-color 0.15s; }
-    .qa-link:hover { border-color: var(--quarkus-blue); box-shadow: 0 4px 16px rgba(70,149,235,0.15); }
+    .qa-link:hover { border-color: var(--brand); box-shadow: 0 4px 16px rgba(70,149,235,0.15); }
 
   </style>
 </head>
@@ -937,7 +938,7 @@
       <p class="qa-sub">Stop Polling. Start Reacting.<br/>Building event-driven systems with Java &amp; Debezium.</p>
 
       <div class="qa-links">
-        <a class="qa-link" href="https://hectorvent.dev" target="_blank">🌐 hectorvent.dev</a>
+        <a class="qa-link" href="/" target="_blank">🌐 hectorvent.dev</a>
         <a class="qa-link" href="https://debezium.io" target="_blank">🐝 Debezium.io</a>
         <a class="qa-link" href="https://quarkus.io" target="_blank">🚀 Quarkus.io</a>
         <a class="qa-link" href="https://github.com/hectorvent/fraud-detection-demo" target="_blank">📂 Demo Source Code</a>

@@ -1,5 +1,5 @@
 ---
-title: "My Journey as a Linux Admin Instructor (2007–2012)"
+title: "My Journey as a Linux Admin Instructor (2007 to 2012)"
 date: 2026-03-01
 description: "Reflecting on my years as a Linux Administration instructor at Fundación Código Libre Dominicano, where I helped train the next generation of sysadmins in open-source technologies."
 tags: ["linux", "open-source", "teaching", "sysadmin", "community"]

@@ -4,6 +4,8 @@ date: 2024-07-01
 description: "A practical talk and workshop presented at JConf Dominicana 2024 on the fundamentals of Infrastructure as Code (IaC), exploring tools like doctl, OpenTofu, Pulumi, and Ansible to automate server provisioning and configuration."
 tags: ["iac", "opentofu", "terraform", "pulumi", "ansible", "devops", "talk"]
 author: "Hector Ventura"
+event: "JConf Dominicana"
+aliases: ["/posts/talk-iac-jconf-2024/"]
 cover:
   image: "/images/opentofu-logo.svg"
   alt: "OpenTofu Logo - JConf Dominicana 2024"

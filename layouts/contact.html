@@ -1,0 +1,47 @@
+{{- define "main" }}
+{{- $email := site.Params.email }}
+
+{{- $channels := slice
+    (dict "icon" "email"    "name" "Email"        "handle" $email                  "url" (printf "mailto:%s" $email)                   "primary" true)
+    (dict "icon" "linkedin" "name" "LinkedIn"     "handle" "in/hectorvent"          "url" "https://linkedin.com/in/hectorvent"          "primary" true)
+    (dict "icon" "github"   "name" "GitHub"       "handle" "@hectorvent"            "url" "https://github.com/hectorvent"               "primary" false)
+    (dict "icon" "bluesky"  "name" "Bluesky"      "handle" "@hectorvent.dev"        "url" "https://bsky.app/profile/hectorvent.dev"     "primary" false)
+    (dict "icon" "twitter"  "name" "X / Twitter"  "handle" "@hectorvent"            "url" "https://twitter.com/hectorvent"              "primary" false)
+    (dict "icon" "telegram" "name" "Telegram"     "handle" "t.me/hectorvent"        "url" "https://t.me/hectorvent"                     "primary" false)
+}}
+
+<div class="home contact">
+
+  {{/* ---------- Hero ---------- */}}
+  <section class="contact-hero">
+    <span class="eyebrow">Contact</span>
+    <h1 class="hero-title">Let's talk</h1>
+    <p class="hero-sub">
+      I'm always happy to hear from people building backend, distributed, or real-time
+      systems: a consulting question, a collaboration, a speaking invite, or feedback
+      on <a href="https://floci.io" rel="noopener">Floci</a>. I read every message.
+    </p>
+  </section>
+
+  {{/* ---------- Channels ---------- */}}
+  <section class="home-section">
+    <div class="contact-grid">
+      {{- range $channels }}
+      <a class="contact-card{{ if .primary }} contact-card--primary{{ end }}" href="{{ .url }}" rel="noopener"{{ if not (hasPrefix .url "mailto:") }} target="_blank"{{ end }}>
+        <span class="contact-icon" aria-hidden="true">{{ partial "svg.html" (dict "name" .icon) }}</span>
+        <span class="contact-meta">
+          <span class="contact-name">{{ .name }}{{ if .primary }} <span class="contact-tag">fastest</span>{{ end }}</span>
+          <span class="contact-handle">{{ .handle }}</span>
+        </span>
+        <span class="contact-arrow" aria-hidden="true">→</span>
+      </a>
+      {{- end }}
+    </div>
+    <p class="contact-note">
+      For consulting or contract work, <strong>email</strong> or <strong>LinkedIn</strong>
+      are the fastest ways to reach me.
+    </p>
+  </section>
+
+</div>
+{{- end }}
